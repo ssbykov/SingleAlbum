@@ -25,7 +25,7 @@ class AlbumRepository {
         private val jsonType = "application/json".toMediaType()
     }
     private fun <T> baseRequest(
-        callback: PostCallback<T>,
+        callback: AlbumCallback<T>,
         typeToken: TypeToken<T>,
         requestBuilder: Request.Builder.() -> Unit,
     ) {
@@ -52,7 +52,7 @@ class AlbumRepository {
                 }
             })
     }
-    fun getAll(callback: PostCallback<Album>) {
+    fun getAlbum(callback: AlbumCallback<Album>) {
         baseRequest(callback, object : TypeToken<Album>() {}) {
             url(BASE_URL)
             get()
@@ -60,7 +60,7 @@ class AlbumRepository {
     }
 }
 
-interface PostCallback<T> {
+interface AlbumCallback<T> {
     fun onSuccess(result: T) {}
     fun onSuccess() {}
     fun onError(e: Exception) {}
