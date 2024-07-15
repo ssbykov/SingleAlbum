@@ -47,16 +47,19 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
         <ImageButton
             android:id="@+id/previous"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_margin="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
             android:background="@drawable/roundcorner"
             android:contentDescription="@string/previous"
             app:srcCompat="@drawable/ic_skip_previous_24" />
+
         <ImageButton
             android:id="@+id/play"
             android:layout_width="48dp"
@@ -79,6 +82,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_item"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/song_card" />
 
 </LinearLayout>

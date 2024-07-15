@@ -12,5 +12,7 @@ data class Album(
 
 data class Track(
     val id: Long,
-    val file: String
+    val file: String,
+    val duration: Int = 0,
+    val played: Int = 0
 )
