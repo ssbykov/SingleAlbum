@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.model.AlbumModel
@@ -36,10 +35,16 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun setTrackInfo(newTrack: Track) {
+    fun setTrack(newTrack: Track) {
         val album = _data.value?.album?.copy()
         val tracks = album?.tracks?.let {
-            it.map { if (it.id == newTrack.id) newTrack.copy() else it.copy() }
+            it.map {
+                if (it.id == newTrack.id) {
+                    newTrack.copy(isSelected = true)
+                } else {
+                    it.copy(isSelected = false)
+                }
+            }
         }
         _data.value = _data.value?.copy(album = album?.copy(tracks = tracks ?: emptyList()))
     }

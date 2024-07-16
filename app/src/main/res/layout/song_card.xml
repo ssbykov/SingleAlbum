@@ -16,7 +16,7 @@
         android:contentDescription="@string/play"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_play_arrow_24" />
+        app:srcCompat="@drawable/play_button_icon_selector" />
 
     <TextView
         android:id="@id/trackName"
