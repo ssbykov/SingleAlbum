@@ -32,6 +32,14 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         return this
     }
 
+    fun pauseOn(){
+        mediaPlayer?.pause()
+    }
+
+    fun pauseOff() {
+        mediaPlayer?.start()
+    }
+
     fun playTrack(trackPath: String, newCard: SongCardBinding) {
         stopCurrentTrack()
         songCardBinding = trackVieweHolderInteface.setNewCard()

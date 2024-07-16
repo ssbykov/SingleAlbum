@@ -1,8 +1,11 @@
 package ru.netology.singlealbum.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -38,6 +41,7 @@ class TrackVieweHolder(
     private val binding: SongCardBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
     lateinit var mediaPlayerController: MediaPlayerController
+    @SuppressLint("ClickableViewAccessibility")
     fun bind(
         track: Track,
     ) {
@@ -45,7 +49,8 @@ class TrackVieweHolder(
         with(binding) {
             trackName.text = track.file
             progress.isEnabled = false
-            playTrack.setOnClickListener {
+
+            playTrack.setOnTouchListener { _, event ->
                 val trackVieweHolderInteface = object : TrackVieweHolderInteface {
 
                     override fun setNewCard(): SongCardBinding {
@@ -59,11 +64,13 @@ class TrackVieweHolder(
                     ) {
                         newCard?.let {
                             it.progress.progress = (currentPosition * 100) / duration
-                            it.playTrack.isPressed = true
                             it.progress.isEnabled = true
                             val zero = it.root.resources.getString(R.string._0_00)
                             if (it.time.text == zero) {
                                 it.time.setText(fromMillis(duration))
+                            }
+                            if (it.progress.progress > 98) {
+                                mediaPlayerController.stopCurrentTrack()
                             }
                         }
                     }
@@ -71,15 +78,34 @@ class TrackVieweHolder(
                     override fun resetCongCard(oldSongCard: SongCardBinding?) {
                         oldSongCard?.let {
                             it.progress.progress = 0
-                            it.playTrack.isPressed = false
                             it.progress.isEnabled = false
                         }
                     }
 
                 }
                 mediaPlayerController = MediaPlayerController.getInstance(trackVieweHolderInteface)
-                mediaPlayerController.playTrack(track.file, binding)
+
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        playTrack.isPressed = !playTrack.isPressed
+                        true
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        if (playTrack.isPressed) {
+                            if (progress.progress == 0) {
+                                mediaPlayerController.playTrack(track.file, binding)
+                            } else {
+                                mediaPlayerController.pauseOff()
+                            }
+                        } else {
+                            mediaPlayerController.pauseOn()
+                        }
+                        true
+                    }
+                    else -> false
             }
+                }
+
             progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 var setProgress: Int? = null
                 override fun onProgressChanged(
