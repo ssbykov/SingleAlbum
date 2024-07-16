@@ -29,15 +29,21 @@ class MainActivity : AppCompatActivity() {
         viewModel.data.observe(this, Observer { data ->
             updateUI(data.album)
         })
-
     }
 
     private fun updateUI(album: Album?) {
         val tracks= album?.tracks ?: emptyList()
         adapter = TraksAdapter(tracks)
-        binding.listItem.adapter = adapter
-        adapter.submitList(album?.tracks)
-        binding.album.text = album?.title
-        binding.artist.text = album?.artist
+        binding.apply {
+            listItem.adapter = adapter
+            adapter.submitList(album?.tracks)
+            albumName.text = album?.title
+            artist.text = album?.artist
+            information.text = getString(
+                R.string.info,
+                album?.published ?: "",
+                album?.genre ?: ""
+            )
+        }
     }
 }
