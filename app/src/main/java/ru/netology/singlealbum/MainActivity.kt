@@ -1,11 +1,14 @@
 package ru.netology.singlealbum
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import ru.netology.singlealbum.adapter.TrackVieweHolder
 import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.databinding.ActivityMainBinding
+import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.model.AlbumModel
 import ru.netology.singlealbum.observer.MediaLifecycleObserver
@@ -29,6 +32,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.data.observe(this, Observer { data ->
             updateUI(data.album)
         })
+
+//        adapter.onBindViewHolder(TrackVieweHolder(
+//            SongCardBinding.inflate(layoutInflater)), 1)
     }
 
     private fun updateUI(album: Album?) {

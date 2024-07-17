@@ -40,7 +40,7 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         mediaPlayer?.start()
     }
 
-    fun playTrack(trackPath: String, newCard: SongCardBinding) {
+    fun playTrack(trackPath: String) {
         stopCurrentTrack()
         songCardBinding = trackVieweHolderInteface.setNewCard()
         mediaPlayer = MediaPlayer()
