@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <ru.netology.singlealbum.CustomImageButton
+    <ru.netology.singlealbum.widget.CustomImageButton
         android:id="@+id/playTrack"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -29,7 +29,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5" />
 
-    <SeekBar
+    <ru.netology.singlealbum.widget.CustomSeekBar
         android:id="@+id/progress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

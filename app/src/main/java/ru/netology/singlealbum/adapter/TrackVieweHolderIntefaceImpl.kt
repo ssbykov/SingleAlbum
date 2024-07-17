@@ -20,6 +20,7 @@ class TrackVieweHolderIntefaceImpl(
         duration: Int
     ) {
         newCard?.let {
+            it.progress.currentPosition = currentPosition
             it.progress.progress = (currentPosition * 100) / duration
             it.progress.isEnabled = true
             val zero = it.root.resources.getString(R.string._0_00)
@@ -27,6 +28,7 @@ class TrackVieweHolderIntefaceImpl(
                 it.time.setText(fromMillis(duration))
             }
             if (it.progress.progress > 98) {
+                it.progress.isFinished = true
                 mediaPlayerController.stopCurrentTrack()
             }
         }

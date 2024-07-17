@@ -55,7 +55,7 @@ class TrackVieweHolder(
                 val trackVieweHolderIntefaceImpl = TrackVieweHolderIntefaceImpl(binding)
                 mediaPlayerController = trackVieweHolderIntefaceImpl.mediaPlayerController
                 if (isPressed) {
-                    if (progress.progress == 0) {
+                    if (progress.currentPosition == 0) {
                         mediaPlayerController.playTrack(track.file)
                     } else {
                         mediaPlayerController.pauseOff()

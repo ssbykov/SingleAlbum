@@ -57,6 +57,10 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         stopTimeUpdates(trackVieweHolderInteface.setNewCard())
     }
 
+    fun getCurrentPosition(): Int {
+        return mediaPlayer?.currentPosition ?: 0
+    }
+
     private fun startTimeUpdates() {
         handler = Handler(Looper.getMainLooper())
         runnable = object : Runnable {
@@ -79,8 +83,10 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
     private fun stopTimeUpdates(newCardBinding: SongCardBinding) {
         trackVieweHolderInteface.resetCongCard(songCardBinding)
         songCardBinding?.let {
-            if (newCardBinding != songCardBinding) {
+            if (newCardBinding != it || it.progress.isFinished) {
                 it.progress.progress = 0
+                it.progress.isFinished = false
+                it.progress.currentPosition = 0
                 it.playTrack.setChecked(false)
                 it.progress.isEnabled = false
             }

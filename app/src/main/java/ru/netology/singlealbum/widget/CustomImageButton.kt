@@ -1,8 +1,9 @@
-package ru.netology.singlealbum
+package ru.netology.singlealbum.widget
 
 import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageButton
+import ru.netology.singlealbum.R
 
 class CustomImageButton : AppCompatImageButton {
     private var isChecked = false
