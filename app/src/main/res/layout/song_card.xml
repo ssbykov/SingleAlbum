@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <ImageButton
+    <ru.netology.singlealbum.CustomImageButton
         android:id="@+id/playTrack"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -16,7 +16,7 @@
         android:contentDescription="@string/play"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/play_button_icon_selector" />
+        app:srcCompat="@drawable/ic_play_arrow_24" />
 
     <TextView
         android:id="@id/trackName"

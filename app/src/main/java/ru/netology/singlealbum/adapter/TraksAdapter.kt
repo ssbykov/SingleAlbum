@@ -51,34 +51,18 @@ class TrackVieweHolder(
             trackName.text = track.file
             progress.isEnabled = false
 
-            playTrack.setOnTouchListener { _, event ->
+            playTrack.setOnCheckedChangeListener { isPressed ->
                 val trackVieweHolderIntefaceImpl = TrackVieweHolderIntefaceImpl(binding)
-
                 mediaPlayerController = trackVieweHolderIntefaceImpl.mediaPlayerController
-
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        playTrack.isPressed = !playTrack.isPressed
-                        true
+                if (isPressed) {
+                    if (progress.progress == 0) {
+                        mediaPlayerController.playTrack(track.file)
+                    } else {
+                        mediaPlayerController.pauseOff()
                     }
-
-                    MotionEvent.ACTION_UP -> {
-                        if (playTrack.isPressed) {
-                            if (progress.progress == 0) {
-                                mediaPlayerController.playTrack(track.file)
-                            } else {
-                                mediaPlayerController.pauseOff()
-                            }
-                        } else {
-                            mediaPlayerController.pauseOn()
-                        }
-                        true
-                    }
-
-                    else -> false
+                } else {
+                    mediaPlayerController.pauseOn()
                 }
-
-                playTrack.isPressed
             }
 
             progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

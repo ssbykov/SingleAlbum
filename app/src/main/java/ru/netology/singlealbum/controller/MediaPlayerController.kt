@@ -32,7 +32,7 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         return this
     }
 
-    fun pauseOn(){
+    fun pauseOn() {
         mediaPlayer?.pause()
     }
 
@@ -54,7 +54,7 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         mediaPlayer?.stop()
         mediaPlayer?.reset()
         mediaPlayer = null
-        stopTimeUpdates()
+        stopTimeUpdates(trackVieweHolderInteface.setNewCard())
     }
 
     private fun startTimeUpdates() {
@@ -76,12 +76,14 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         }
     }
 
-    private fun stopTimeUpdates() {
+    private fun stopTimeUpdates(newCardBinding: SongCardBinding) {
         trackVieweHolderInteface.resetCongCard(songCardBinding)
         songCardBinding?.let {
-            it.progress.progress = 0
-            it.playTrack.isPressed = false
-            it.progress.isEnabled = false
+            if (newCardBinding != songCardBinding) {
+                it.progress.progress = 0
+                it.playTrack.setChecked(false)
+                it.progress.isEnabled = false
+            }
         }
         handler?.removeCallbacks(requireNotNull(runnable))
         handler = null
