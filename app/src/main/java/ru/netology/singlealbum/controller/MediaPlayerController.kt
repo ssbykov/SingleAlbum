@@ -57,8 +57,8 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         stopTimeUpdates(trackVieweHolderInteface.setNewCard())
     }
 
-    fun getCurrentPosition(): Int {
-        return mediaPlayer?.currentPosition ?: 0
+    fun getMediaPlayer(): MediaPlayer? {
+        return mediaPlayer
     }
 
     private fun startTimeUpdates() {

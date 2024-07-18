@@ -27,8 +27,8 @@ class TrackVieweHolderIntefaceImpl(
             if (it.time.text == zero) {
                 it.time.setText(fromMillis(duration))
             }
-            if (it.progress.progress > 98) {
-                it.progress.isFinished = true
+            mediaPlayerController.getMediaPlayer()?.setOnCompletionListener {
+                newCard.progress.isFinished = true
                 mediaPlayerController.stopCurrentTrack()
             }
         }

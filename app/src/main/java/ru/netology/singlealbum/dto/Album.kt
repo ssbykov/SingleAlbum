@@ -1,5 +1,6 @@
 package ru.netology.singlealbum.dto
 
+import android.view.View
 import kotlin.time.Duration
 
 data class Album(
@@ -16,5 +17,5 @@ data class Track(
     val id: Long,
     val file: String,
     val duration: Int,
-    val isSelected: Boolean = false,
+    val layer: View? = null,
 )
