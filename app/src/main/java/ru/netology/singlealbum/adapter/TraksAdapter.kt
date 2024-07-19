@@ -15,7 +15,7 @@ import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.utils.fromMillis
 
-class TraksAdapter(private val items: List<Track>) :
+class TraksAdapter(private val items: MutableList<Track>) :
     ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
     override fun onBindViewHolder(holder: TrackVieweHolder, position: Int) {
         val track = getItem(position)
@@ -24,7 +24,7 @@ class TraksAdapter(private val items: List<Track>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackVieweHolder {
         val binding = SongCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return TrackVieweHolder(binding)
+        return TrackVieweHolder(binding, this)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -35,12 +35,18 @@ class TraksAdapter(private val items: List<Track>) :
         return items[position].id.toLong()
     }
 
+    fun updateItem(position: Int, track: Track) {
+        items[position] = track
+        notifyItemChanged(position)
+    }
+
 }
 
 class TrackVieweHolder(
     private val binding: SongCardBinding,
+    private val traksAdapter: TraksAdapter
 ) : RecyclerView.ViewHolder(binding.root) {
-    lateinit var mediaPlayerController: MediaPlayerController
+    val mediaPlayerController = MediaPlayerController.getInstance(traksAdapter)
 
     @SuppressLint("ClickableViewAccessibility")
     fun bind(
@@ -49,14 +55,21 @@ class TrackVieweHolder(
 
         with(binding) {
             trackName.text = track.file
-            progress.isEnabled = false
+            progress.isEnabled = track.isPlaying
+            if (playTrack.isPressed != track.isPlaying) {
+                playTrack.setImageResource(
+                    if (track.isPlaying) R.drawable.ic_pause_24 else R.drawable.ic_play_arrow_24
+                )
+            }
+            if (track.duration != 0) {
+                progress.progress = (track.currentPosition * 100) / track.duration
+            }
+            time.setText(fromMillis(track.duration))
 
             playTrack.setOnCheckedChangeListener { isPressed ->
-                val trackVieweHolderIntefaceImpl = TrackVieweHolderIntefaceImpl(binding)
-                mediaPlayerController = trackVieweHolderIntefaceImpl.mediaPlayerController
                 if (isPressed) {
                     if (progress.currentPosition == 0) {
-                        mediaPlayerController.playTrack(track.file)
+                        mediaPlayerController.playTrack(track)
                     } else {
                         mediaPlayerController.pauseOff()
                     }

@@ -33,22 +33,21 @@ class MainActivity : AppCompatActivity() {
             updateUI(data.album)
         })
 
-//        adapter.onBindViewHolder(TrackVieweHolder(
-//            SongCardBinding.inflate(layoutInflater)), 1)
     }
 
     private fun updateUI(album: Album?) {
-        val tracks= album?.tracks ?: emptyList()
+        val tracks= album?.tracks
+        if (tracks ==  null) return
         adapter = TraksAdapter(tracks)
         binding.apply {
             listItem.adapter = adapter
-            adapter.submitList(album?.tracks)
-            albumName.text = album?.title
-            artist.text = album?.artist
+            adapter.submitList(album.tracks)
+            albumName.text = album.title
+            artist.text = album.artist
             information.text = getString(
                 R.string.info,
-                album?.published ?: "",
-                album?.genre ?: ""
+                album.published ?: "",
+                album.genre ?: ""
             )
         }
     }

@@ -4,32 +4,30 @@ import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import ru.netology.singlealbum.adapter.TrackVieweHolderInteface
+import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.databinding.SongCardBinding
+import ru.netology.singlealbum.dto.Track
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 
 
-class MediaPlayerController private constructor(private var trackVieweHolderInteface: TrackVieweHolderInteface) {
+class MediaPlayerController private constructor(private val trackAdapter: TraksAdapter) {
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var runnable: Runnable? = null
     private var songCardBinding: SongCardBinding? = null
+    private var track: Track? = null
 
     companion object {
         @Volatile
         private var instance: MediaPlayerController? = null
 
-        fun getInstance(trackVieweHolderInteface: TrackVieweHolderInteface): MediaPlayerController {
-            return instance?.setInterface(trackVieweHolderInteface) ?: synchronized(this) {
-                instance ?: MediaPlayerController(trackVieweHolderInteface).also { instance = it }
+        fun getInstance(trackAdapter: TraksAdapter): MediaPlayerController {
+            return instance ?: synchronized(this) {
+                instance ?: MediaPlayerController(trackAdapter).also { instance = it }
             }
         }
-    }
-
-    private fun setInterface(newInterface: TrackVieweHolderInteface): MediaPlayerController {
-        this.trackVieweHolderInteface = newInterface
-        return this
     }
 
     fun pauseOn() {
@@ -40,34 +38,42 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         mediaPlayer?.start()
     }
 
-    fun playTrack(trackPath: String) {
+    fun playTrack(newTrack: Track) {
         stopCurrentTrack()
-        songCardBinding = trackVieweHolderInteface.setNewCard()
+        track = newTrack
         mediaPlayer = MediaPlayer()
-        mediaPlayer?.setDataSource(BASE_PATH + trackPath)
+        mediaPlayer?.setDataSource(BASE_PATH + newTrack.file)
         mediaPlayer?.prepare()
         mediaPlayer?.start()
-        startTimeUpdates()
+        if (track != null) {
+            startTimeUpdates(requireNotNull(track))
+        }
     }
 
     fun stopCurrentTrack() {
         mediaPlayer?.stop()
         mediaPlayer?.reset()
         mediaPlayer = null
-        stopTimeUpdates(trackVieweHolderInteface.setNewCard())
+        if (track != null) {
+            stopTimeUpdates(requireNotNull(track))
+        }
     }
 
     fun getMediaPlayer(): MediaPlayer? {
         return mediaPlayer
     }
 
-    private fun startTimeUpdates() {
+    private fun startTimeUpdates(newTrack: Track) {
         handler = Handler(Looper.getMainLooper())
         runnable = object : Runnable {
             override fun run() {
                 val currentPosition = mediaPlayer?.currentPosition ?: 0
                 val duration = mediaPlayer?.duration ?: 0
-                trackVieweHolderInteface.initNewCard(songCardBinding, currentPosition, duration)
+                trackAdapter.updateItem(newTrack.id.toInt() - 1, newTrack.copy(
+                    currentPosition = currentPosition,
+                    duration = duration,
+                    isPlaying = true
+                ))
                 handler?.postDelayed(this, 1000)
             }
         }
@@ -80,17 +86,8 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
         }
     }
 
-    private fun stopTimeUpdates(newCardBinding: SongCardBinding) {
-        trackVieweHolderInteface.resetCongCard(songCardBinding)
-        songCardBinding?.let {
-            if (newCardBinding != it || it.progress.isFinished) {
-                it.progress.progress = 0
-                it.progress.isFinished = false
-                it.progress.currentPosition = 0
-                it.playTrack.setChecked(false)
-                it.progress.isEnabled = false
-            }
-        }
+    private fun stopTimeUpdates(track: Track) {
+        trackAdapter.updateItem(track.id.toInt() - 1, track)
         handler?.removeCallbacks(requireNotNull(runnable))
         handler = null
         runnable = null
