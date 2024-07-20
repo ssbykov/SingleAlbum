@@ -4,7 +4,9 @@ import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import ru.netology.singlealbum.adapter.TrackVieweHolderInteface
+import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.databinding.SongCardBinding
+import javax.inject.Inject
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
@@ -15,6 +17,8 @@ class MediaPlayerController private constructor(private var trackVieweHolderInte
     private var handler: Handler? = null
     private var runnable: Runnable? = null
     private var songCardBinding: SongCardBinding? = null
+    @Inject
+    lateinit var adapter: TraksAdapter
 
     companion object {
         @Volatile
