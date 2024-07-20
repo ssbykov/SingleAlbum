@@ -4,14 +4,15 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.model.AlbumModel
 import ru.netology.singlealbum.repository.AlbumCallback
 import ru.netology.singlealbum.repository.AlbumRepository
+import javax.inject.Inject
 
-
-class AlbumViewModel(application: Application) : AndroidViewModel(application) {
+class AlbumViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
     private val repository = AlbumRepository()
     private val _data = MutableLiveData<AlbumModel>()
 

@@ -14,8 +14,11 @@ import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.utils.fromMillis
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TraksAdapter(private val items: List<Track>) :
+@Singleton
+class TraksAdapter @Inject constructor(private val items: List<Track>) :
     ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
     override fun onBindViewHolder(holder: TrackVieweHolder, position: Int) {
         val track = getItem(position)
@@ -37,7 +40,7 @@ class TraksAdapter(private val items: List<Track>) :
 
 }
 
-class TrackVieweHolder(
+class TrackVieweHolder @Inject constructor(
     private val binding: SongCardBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
     lateinit var mediaPlayerController: MediaPlayerController
