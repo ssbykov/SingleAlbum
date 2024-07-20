@@ -12,7 +12,7 @@ import ru.netology.singlealbum.viewmodel.AlbumViewModel
 object AdapterModule {
     @Provides
     fun provideItemAdapter(viewModel: AlbumViewModel): TraksAdapter {
-        val tracks= viewModel.data.value?.album?.tracks ?: emptyList()
-        return TraksAdapter(tracks)
+        val tracks = viewModel.data.value?.album?.tracks ?: emptyList()
+        return TraksAdapter(tracks.toMutableList())
     }
 }

@@ -18,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TraksAdapter @Inject constructor(private val items: List<Track>) :
+class TraksAdapter @Inject constructor(private val items: MutableList<Track>) :
     ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
     override fun onBindViewHolder(holder: TrackVieweHolder, position: Int) {
         val track = getItem(position)
@@ -38,6 +38,11 @@ class TraksAdapter @Inject constructor(private val items: List<Track>) :
         return items[position].id.toLong()
     }
 
+    fun updateItem(position: Int, track: Track) {
+        items[position] = track
+        notifyItemChanged(position)
+    }
+
 }
 
 class TrackVieweHolder @Inject constructor(
@@ -51,8 +56,13 @@ class TrackVieweHolder @Inject constructor(
     ) {
 
         with(binding) {
-            trackName.text = track.file
-            progress.isEnabled = false
+            trackName.text =
+                binding.root.resources.getString(
+                    R.string.track,
+                    track.number.toString(),
+                    track.file
+                )
+            progress.isEnabled = track.isPlaying
 
             playTrack.setOnCheckedChangeListener { isPressed ->
                 val trackVieweHolderIntefaceImpl = TrackVieweHolderIntefaceImpl(binding)

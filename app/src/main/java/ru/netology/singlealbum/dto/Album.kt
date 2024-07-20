@@ -15,7 +15,8 @@ data class Album(
 
 data class Track(
     val id: Long,
+    val number: Int?,
     val file: String,
     val duration: Int,
-    val layer: View? = null,
+    val isPlaying: Boolean = false,
 )

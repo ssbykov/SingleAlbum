@@ -12,11 +12,14 @@ private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 
 
-class MediaPlayerController private constructor(private var trackVieweHolderInteface: TrackVieweHolderInteface) {
+class MediaPlayerController private constructor(
+    private var trackVieweHolderInteface: TrackVieweHolderInteface
+) {
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var runnable: Runnable? = null
     private var songCardBinding: SongCardBinding? = null
+
     @Inject
     lateinit var adapter: TraksAdapter
 

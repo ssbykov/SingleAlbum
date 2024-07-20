@@ -27,7 +27,12 @@ class AlbumViewModel @Inject constructor(application: Application) : AndroidView
         _data.postValue(AlbumModel(load = true))
         repository.getAlbum(object : AlbumCallback<Album> {
             override fun onSuccess(result: Album) {
-                _data.postValue(AlbumModel(album = result))
+                var number = 0
+                val tracks = result.tracks.map {
+                    it.copy(number = ++number)
+                }
+                val album = result.copy(tracks = tracks)
+                _data.postValue(AlbumModel(album = album))
             }
 
             override fun onError(e: Exception) {
