@@ -18,8 +18,7 @@ import javax.inject.Singleton
 class TraksAdapter @Inject constructor(private var items: MutableList<Track>) :
     ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
     override fun onBindViewHolder(holder: TrackVieweHolder, position: Int) {
-        val track = getItem(position)
-        holder.bind(track)
+        holder.bind(items[position])
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackVieweHolder {
@@ -29,10 +28,6 @@ class TraksAdapter @Inject constructor(private var items: MutableList<Track>) :
 
     override fun getItemViewType(position: Int): Int {
         return position
-    }
-
-    override fun getItemId(position: Int): Long {
-        return items[position].id.toLong()
     }
 
     fun setItems(tracks: MutableList<Track>) {
@@ -64,20 +59,8 @@ class TrackVieweHolder(
                     track.file
                 )
             progress.isEnabled = track.isPlaying
-
             playTrack.setOnCheckedChangeListener { isPressed ->
-                val trackVieweHolderIntefaceImpl = TrackVieweHolderIntefaceImpl(binding)
-                mediaPlayerController =
-                    MediaPlayerController.getInstance(trackVieweHolderIntefaceImpl)
-                if (isPressed) {
-                    if (progress.currentPosition == 0) {
-                        mediaPlayerController?.playTrack(track)
-                    } else {
-                        mediaPlayerController?.pauseOff()
-                    }
-                } else {
-                    mediaPlayerController?.pauseOn()
-                }
+                mediaPlayerController = play(isPressed, track)
             }
 
             progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -108,6 +91,22 @@ object TrackDiffCallback : DiffUtil.ItemCallback<Track>() {
     override fun areItemsTheSame(oldItem: Track, newItem: Track) =
         oldItem == newItem
 
+}
+
+fun SongCardBinding.play(isPressed: Boolean, track: Track): MediaPlayerController? {
+    val trackVieweHolderIntefaceImpl = TrackVieweHolderIntefaceImpl(this)
+    val mediaPlayerController =
+        MediaPlayerController.getInstance(trackVieweHolderIntefaceImpl)
+    if (isPressed) {
+        if (progress.currentPosition == 0) {
+            mediaPlayerController?.playTrack(track)
+        } else {
+            mediaPlayerController?.pauseOff()
+        }
+    } else {
+        mediaPlayerController?.pauseOn()
+    }
+    return mediaPlayerController
 }
 
 interface TrackVieweHolderInteface {
