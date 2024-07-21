@@ -6,8 +6,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
+import ru.netology.singlealbum.R
 import ru.netology.singlealbum.adapter.TraksAdapterNew
+import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.databinding.ActivityMainBinding
+import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.observer.MediaLifecycleObserver
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
 
@@ -28,14 +31,26 @@ class AppActivity : AppCompatActivity() {
 
         container = binding.listItem
 
-        val adapter = TraksAdapterNew
+
 
         viewModel.data.observe(this, Observer { data ->
-            adapter.addItem(data.album?.tracks, container)
+            updateUI(data.album)
         })
-
-        adapter.cards
     }
 
+    private fun updateUI(album: Album?) {
+        binding.apply {
+            val adapter = TraksAdapterNew
+            adapter.addItem(album?.tracks, container)
+            MediaPlayerController.initialize(adapter)
+            albumName.text = album?.title
+            artist.text = album?.artist
+            information.text = getString(
+                R.string.info,
+                album?.published ?: "",
+                album?.genre ?: ""
+            )
+        }
+    }
 
 }

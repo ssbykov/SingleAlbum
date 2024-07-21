@@ -42,6 +42,24 @@ object TraksAdapterNew {
                 playTrack.setOnCheckedChangeListener { isPressed ->
                     mediaPlayerController = play(isPressed, track, progress, itemView)
                 }
+                progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    var setProgress: Int? = null
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+                        setProgress = progress
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        mediaPlayerController?.updateProgress(setProgress ?: 0)
+                    }
+
+                })
+
                 container.addView(itemView)
                 _cards.add(itemView)
             }
