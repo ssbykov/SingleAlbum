@@ -10,7 +10,8 @@ import ru.netology.singlealbum.dto.Track
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
-
+private const val NOT_INIT = "The controller is not initialized"
+private const val NOT_INST = "The interface is not installed"
 
 class MediaPlayerController private constructor(private val adapter: TraksAdapter) {
     private var mediaPlayer: MediaPlayer? = null
@@ -30,7 +31,7 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
         }
 
         fun getInstance(trackInteface: TrackInteface): MediaPlayerController? {
-            instance ?: throw Exception("Контроллер не инициализирован")
+            instance ?: throw Exception(NOT_INIT)
             return instance?.setInterface(trackInteface)
         }
     }
@@ -49,7 +50,7 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
     }
 
     fun playTrack(track: Track) {
-        if (trackInteface == null) throw Exception("Интерфейс не установлен")
+        if (trackInteface == null) throw Exception(NOT_INST)
         stopCurrentTrack()
         songCard = trackInteface?.setNewCard()
         mediaPlayer = MediaPlayer()

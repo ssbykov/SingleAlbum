@@ -34,8 +34,6 @@ class AppActivity : AppCompatActivity() {
 
         container = binding.listItem
 
-
-
         viewModel.data.observe(this, Observer { data ->
             updateUI(data.album)
         })
@@ -52,6 +50,13 @@ class AppActivity : AppCompatActivity() {
                 album?.published ?: "",
                 album?.genre ?: ""
             )
+            play.setOnClickListener {
+                adapter.play(
+                    isPressed = true,
+                    track = adapter.tracks.first(),
+                    itemView = adapter.cards.first()
+                    )
+            }
         }
     }
 

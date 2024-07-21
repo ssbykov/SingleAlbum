@@ -10,6 +10,7 @@ import ru.netology.singlealbum.utils.fromMillis
 import ru.netology.singlealbum.widget.CustomImageButton
 import ru.netology.singlealbum.widget.CustomSeekBar
 
+private const val ZERO = "0:00"
 class TrackIntefaceImpl(
     private val itemView: ConstraintLayout,
 ) : TrackInteface {
@@ -30,7 +31,7 @@ class TrackIntefaceImpl(
             progress.isEnabled = true
         }
         val timeTextView = newCard?.findViewById<TextView>(R.id.time)
-        if (timeTextView?.text == "0:00") {
+        if (timeTextView?.text == ZERO) {
             timeTextView.setText(fromMillis(duration))
         }
     }
