@@ -43,8 +43,8 @@ class TrackIntefaceImpl(
             progress = 0
             isFinished = false
         }
-        val playTrack = itemView.findViewById<CustomImageButton>(R.id.playTrack)
-        playTrack.setChecked(false)
+        val playTrack = oldCard?.findViewById<CustomImageButton>(R.id.playTrack)
+        playTrack?.setChecked(false)
     }
 
 

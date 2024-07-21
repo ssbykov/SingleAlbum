@@ -5,26 +5,25 @@ import android.os.Handler
 import android.os.Looper
 import androidx.constraintlayout.widget.ConstraintLayout
 import ru.netology.singlealbum.adapter.TrackInteface
-import ru.netology.singlealbum.adapter.TraksAdapterNew
+import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.dto.Track
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 
 
-class MediaPlayerController private constructor(private val adapter: TraksAdapterNew) {
+class MediaPlayerController private constructor(private val adapter: TraksAdapter) {
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var runnable: Runnable? = null
     private var songCard: ConstraintLayout? = null
-    private var currentTrack: Track? = null
     private var trackInteface: TrackInteface? = null
 
     companion object {
         @Volatile
         private var instance: MediaPlayerController? = null
 
-        fun initialize(adapter: TraksAdapterNew) {
+        fun initialize(adapter: TraksAdapter) {
             instance ?: synchronized(this) {
                 instance ?: MediaPlayerController(adapter).also { instance = it }
             }
@@ -51,7 +50,6 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
 
     fun playTrack(track: Track) {
         if (trackInteface == null) throw Exception("Интерфейс не установлен")
-        currentTrack = track
         stopCurrentTrack()
         songCard = trackInteface?.setNewCard()
         mediaPlayer = MediaPlayer()
@@ -59,7 +57,11 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
         mediaPlayer?.prepare()
         mediaPlayer?.start()
         mediaPlayer?.setOnCompletionListener {
-            stopCurrentTrack()
+            if (track.number in (0..adapter.tracks.size - 1)) {
+                adapter.play(true, adapter.tracks[track.number], adapter.cards[track.number])
+            } else {
+                stopCurrentTrack()
+            }
         }
         startTimeUpdates()
     }

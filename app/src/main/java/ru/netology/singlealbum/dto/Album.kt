@@ -16,7 +16,7 @@ data class Album(
 
 data class Track(
     val id: Long,
-    val number: Int?,
+    val number: Int = 0,
     val file: String,
     val duration: Int,
     val isPlaying: Boolean = false,

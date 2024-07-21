@@ -7,12 +7,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.singlealbum.R
-import ru.netology.singlealbum.adapter.TraksAdapterNew
+import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.databinding.ActivityMainBinding
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.observer.MediaLifecycleObserver
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
@@ -21,6 +22,8 @@ class AppActivity : AppCompatActivity() {
     private val observer = MediaLifecycleObserver()
     lateinit var binding: ActivityMainBinding
     private lateinit var container: LinearLayout
+    @Inject
+    lateinit var adapter: TraksAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +43,6 @@ class AppActivity : AppCompatActivity() {
 
     private fun updateUI(album: Album?) {
         binding.apply {
-            val adapter = TraksAdapterNew
             adapter.addItem(album?.tracks, container)
             MediaPlayerController.initialize(adapter)
             albumName.text = album?.title
