@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.singlealbum.R
 import ru.netology.singlealbum.adapter.TraksAdapter
+import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.databinding.ActivityMainBinding
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.observer.MediaLifecycleObserver
@@ -34,12 +35,18 @@ class AppActivity : AppCompatActivity() {
             updateUI(data.album)
         })
 
+
     }
 
     private fun updateUI(album: Album?) {
         binding.apply {
             listItem.adapter = adapter
-            adapter.submitList(album?.tracks)
+            val tracks = album?.tracks
+            adapter.submitList(tracks)
+            if (tracks != null) {
+                adapter.setItems(tracks.toMutableList())
+            }
+            MediaPlayerController.initialize(adapter)
             albumName.text = album?.title
             artist.text = album?.artist
             information.text = getString(

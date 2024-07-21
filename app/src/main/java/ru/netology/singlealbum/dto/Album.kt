@@ -1,5 +1,6 @@
 package ru.netology.singlealbum.dto
 
+import android.icu.text.Transliterator.Position
 import android.view.View
 import kotlin.time.Duration
 
@@ -19,4 +20,5 @@ data class Track(
     val file: String,
     val duration: Int,
     val isPlaying: Boolean = false,
+    val currentPosition: Int = 0
 )

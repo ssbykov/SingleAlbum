@@ -6,36 +6,38 @@ import android.os.Looper
 import ru.netology.singlealbum.adapter.TrackVieweHolderInteface
 import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.databinding.SongCardBinding
-import javax.inject.Inject
+import ru.netology.singlealbum.dto.Track
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 
 
-class MediaPlayerController private constructor(
-    private var trackVieweHolderInteface: TrackVieweHolderInteface
-) {
+class MediaPlayerController private constructor(private val adapter: TraksAdapter) {
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var runnable: Runnable? = null
     private var songCardBinding: SongCardBinding? = null
-
-    @Inject
-    lateinit var adapter: TraksAdapter
+    private var currentTrack: Track? = null
+    private var trackVieweHolderInteface: TrackVieweHolderInteface? = null
 
     companion object {
         @Volatile
         private var instance: MediaPlayerController? = null
 
-        fun getInstance(trackVieweHolderInteface: TrackVieweHolderInteface): MediaPlayerController {
-            return instance?.setInterface(trackVieweHolderInteface) ?: synchronized(this) {
-                instance ?: MediaPlayerController(trackVieweHolderInteface).also { instance = it }
+        fun initialize(adapter: TraksAdapter) {
+            instance ?: synchronized(this) {
+                instance ?: MediaPlayerController(adapter).also { instance = it }
             }
+        }
+
+        fun getInstance(trackVieweHolderInteface: TrackVieweHolderInteface): MediaPlayerController? {
+            instance ?: throw Exception("Контроллер не инициализирован")
+            return instance?.setInterface(trackVieweHolderInteface)
         }
     }
 
-    private fun setInterface(newInterface: TrackVieweHolderInteface): MediaPlayerController {
-        this.trackVieweHolderInteface = newInterface
+    fun setInterface(newInterface: TrackVieweHolderInteface?): MediaPlayerController {
+        trackVieweHolderInteface = newInterface
         return this
     }
 
@@ -47,25 +49,27 @@ class MediaPlayerController private constructor(
         mediaPlayer?.start()
     }
 
-    fun playTrack(trackPath: String) {
+    fun playTrack(track: Track) {
+        if (trackVieweHolderInteface == null) throw Exception("Интерфейс не установлен")
+        currentTrack = track
         stopCurrentTrack()
-        songCardBinding = trackVieweHolderInteface.setNewCard()
+        songCardBinding = trackVieweHolderInteface?.setNewCard()
         mediaPlayer = MediaPlayer()
-        mediaPlayer?.setDataSource(BASE_PATH + trackPath)
+        mediaPlayer?.setDataSource(BASE_PATH + track.file)
         mediaPlayer?.prepare()
         mediaPlayer?.start()
+        mediaPlayer?.setOnCompletionListener {
+            stopCurrentTrack()
+        }
         startTimeUpdates()
     }
 
-    fun stopCurrentTrack() {
+    private fun stopCurrentTrack() {
         mediaPlayer?.stop()
         mediaPlayer?.reset()
         mediaPlayer = null
-        stopTimeUpdates(trackVieweHolderInteface.setNewCard())
-    }
-
-    fun getMediaPlayer(): MediaPlayer? {
-        return mediaPlayer
+        trackVieweHolderInteface?.resetCongCard(songCardBinding)
+        stopTimeUpdates()
     }
 
     private fun startTimeUpdates() {
@@ -74,7 +78,7 @@ class MediaPlayerController private constructor(
             override fun run() {
                 val currentPosition = mediaPlayer?.currentPosition ?: 0
                 val duration = mediaPlayer?.duration ?: 0
-                trackVieweHolderInteface.initNewCard(songCardBinding, currentPosition, duration)
+                trackVieweHolderInteface?.initNewCard(songCardBinding, currentPosition, duration)
                 handler?.postDelayed(this, 1000)
             }
         }
@@ -87,17 +91,7 @@ class MediaPlayerController private constructor(
         }
     }
 
-    private fun stopTimeUpdates(newCardBinding: SongCardBinding) {
-        trackVieweHolderInteface.resetCongCard(songCardBinding)
-        songCardBinding?.let {
-            if (newCardBinding != it || it.progress.isFinished) {
-                it.progress.progress = 0
-                it.progress.isFinished = false
-                it.progress.currentPosition = 0
-                it.playTrack.setChecked(false)
-                it.progress.isEnabled = false
-            }
-        }
+    private fun stopTimeUpdates() {
         handler?.removeCallbacks(requireNotNull(runnable))
         handler = null
         runnable = null

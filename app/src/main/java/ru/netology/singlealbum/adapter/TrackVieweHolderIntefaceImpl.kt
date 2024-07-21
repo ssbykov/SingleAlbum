@@ -8,7 +8,6 @@ import ru.netology.singlealbum.utils.fromMillis
 class TrackVieweHolderIntefaceImpl(
     private val binding: SongCardBinding,
 ) : TrackVieweHolderInteface {
-    val mediaPlayerController = MediaPlayerController.getInstance(this)
 
     override fun setNewCard(): SongCardBinding {
         return binding
@@ -27,17 +26,16 @@ class TrackVieweHolderIntefaceImpl(
             if (it.time.text == zero) {
                 it.time.setText(fromMillis(duration))
             }
-            mediaPlayerController.getMediaPlayer()?.setOnCompletionListener {
-                newCard.progress.isFinished = true
-                mediaPlayerController.stopCurrentTrack()
-            }
         }
     }
 
     override fun resetCongCard(oldSongCard: SongCardBinding?) {
         oldSongCard?.let {
-            it.progress.progress = 0
+            it.progress.currentPosition = 0
+            it.playTrack.setChecked(false)
             it.progress.isEnabled = false
+            it.progress.progress = 0
+            it.progress.isFinished = false
         }
     }
 
