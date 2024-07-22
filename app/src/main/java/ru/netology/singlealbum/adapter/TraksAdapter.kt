@@ -8,36 +8,31 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import ru.netology.singlealbum.R
 import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.dto.Track
+import ru.netology.singlealbum.model.TrackModel
 import ru.netology.singlealbum.widget.CustomImageButton
 import ru.netology.singlealbum.widget.CustomSeekBar
 
 object TraksAdapter {
-    private val _cards = mutableListOf<ConstraintLayout>()
-    val cards: List<ConstraintLayout>
-        get() = _cards
-
-    private val _tracks = mutableListOf<Track>()
-    val tracks: List<Track>
-        get() = _tracks
+    private val _data = mutableListOf<TrackModel>()
+    val data: List<TrackModel>
+        get() = _data
 
     var mediaPlayerController: MediaPlayerController? = null
 
     fun addItem(tracks: List<Track>?, container: LinearLayout) {
-        if (tracks != null) {
-            this._tracks.addAll(tracks)
-        }
         tracks?.let {
             it.forEach { track ->
                 val inflater = LayoutInflater.from(container.context)
                 val itemView =
                     inflater.inflate(R.layout.song_card, container, false) as ConstraintLayout
                 val trackNameView = itemView.findViewById<TextView>(R.id.trackName)
+                val trackModel = TrackModel(track, itemView)
                 trackNameView.text = track.file
                 val progress = itemView.findViewById<CustomSeekBar>(R.id.progress)
                 progress.isEnabled = track.isPlaying
                 val playTrack = itemView.findViewById<CustomImageButton>(R.id.playTrack)
                 playTrack.setOnCheckedChangeListener { isPressed ->
-                    mediaPlayerController = play(isPressed, track, itemView)
+                    mediaPlayerController = play(trackModel, isPressed)
                 }
                 progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     var setProgress: Int? = null
@@ -58,25 +53,24 @@ object TraksAdapter {
                 })
 
                 container.addView(itemView)
-                _cards.add(itemView)
+                _data.add(trackModel)
             }
         }
     }
 
     fun play(
-        isPressed: Boolean,
-        track: Track,
-        itemView: ConstraintLayout
+        trackModel: TrackModel,
+        isPressed: Boolean = true,
     ): MediaPlayerController? {
-        val trackIntefaceImpl = TrackIntefaceImpl(itemView)
+        val trackIntefaceImpl = TrackIntefaceImpl(trackModel.card)
         val mediaPlayerController =
             MediaPlayerController.getInstance(trackIntefaceImpl)
         if (isPressed) {
-            val progress = itemView.findViewById<CustomSeekBar>(R.id.progress)
-            val playTrack = itemView.findViewById<CustomImageButton>(R.id.playTrack)
+            val progress = trackModel.card.findViewById<CustomSeekBar>(R.id.progress)
+            val playTrack = trackModel.card.findViewById<CustomImageButton>(R.id.playTrack)
             if (progress.currentPosition == 0) {
                 playTrack.setChecked(true)
-                mediaPlayerController?.playTrack(track)
+                mediaPlayerController?.playTrack(trackModel.track)
             } else {
                 mediaPlayerController?.pauseOff()
             }

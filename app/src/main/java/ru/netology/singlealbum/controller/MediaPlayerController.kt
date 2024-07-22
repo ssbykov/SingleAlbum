@@ -58,8 +58,8 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
         mediaPlayer?.prepare()
         mediaPlayer?.start()
         mediaPlayer?.setOnCompletionListener {
-            if (track.number in (0..adapter.tracks.size - 1)) {
-                adapter.play(true, adapter.tracks[track.number], adapter.cards[track.number])
+            if (track.number in (0..adapter.data.size - 1)) {
+                adapter.play(adapter.data[track.number])
             } else {
                 stopCurrentTrack()
             }

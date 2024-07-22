@@ -22,6 +22,7 @@ class AppActivity : AppCompatActivity() {
     private val observer = MediaLifecycleObserver()
     lateinit var binding: ActivityMainBinding
     private lateinit var container: LinearLayout
+
     @Inject
     lateinit var adapter: TraksAdapter
 
@@ -51,11 +52,7 @@ class AppActivity : AppCompatActivity() {
                 album?.genre ?: ""
             )
             play.setOnClickListener {
-                adapter.play(
-                    isPressed = true,
-                    track = adapter.tracks.first(),
-                    itemView = adapter.cards.first()
-                    )
+                adapter.play(adapter.data.first())
             }
         }
     }
