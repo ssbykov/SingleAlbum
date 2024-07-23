@@ -60,7 +60,7 @@
             android:contentDescription="@string/previous"
             app:srcCompat="@drawable/ic_skip_previous_24" />
 
-        <ImageButton
+        <ru.netology.singlealbum.widget.CustomImageButton
             android:id="@+id/play"
             android:layout_width="48dp"
             android:layout_height="48dp"
