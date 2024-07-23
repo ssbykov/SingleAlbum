@@ -1,116 +1,71 @@
 package ru.netology.singlealbum.adapter
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.widget.SeekBar
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import ru.netology.singlealbum.R
 import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
+import ru.netology.singlealbum.model.TrackModel
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class TraksAdapter @Inject constructor(private var items: MutableList<Track>) :
-    ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
-    override fun onBindViewHolder(holder: TrackVieweHolder, position: Int) {
-        holder.bind(items[position])
-    }
+class TraksAdapter @Inject constructor(
+    val mediaPlayerController: MediaPlayerController
+) {
+    private val _data = mutableListOf<TrackModel>()
+    val data: List<TrackModel>
+        get() = _data
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackVieweHolder {
-        val binding = SongCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return TrackVieweHolder(binding)
-    }
+    fun addItem(tracks: List<Track>?, layoutInflater: LayoutInflater) {
+        tracks?.let {
+            it.forEach { track ->
+                val itemBinding = SongCardBinding.inflate(layoutInflater)
+                itemBinding.apply {
+                    trackName.text =
+                        itemBinding.root.resources.getString(R.string.track, track.id, track.file)
+                    progress.isEnabled = track.isPlaying
+                    val trackModel = TrackModel(track, itemBinding)
+                    playTrack.setOnCheckedChangeListener { isPressed ->
+                        play(trackModel, isPressed)
+                    }
+                    progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                        var setProgress: Int? = null
+                        override fun onProgressChanged(
+                            seekBar: SeekBar?,
+                            progress: Int,
+                            fromUser: Boolean
+                        ) {
+                            setProgress = progress
+                        }
 
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
+                        override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
-    fun setItems(tracks: MutableList<Track>) {
-        items = tracks
-    }
+                        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                            mediaPlayerController.updateProgress(setProgress ?: 0)
+                        }
 
-    fun updateItem(position: Int, track: Track) {
-        items[position] = track
-        notifyItemChanged(position)
-    }
-
-}
-
-class TrackVieweHolder(
-    private val binding: SongCardBinding,
-) : RecyclerView.ViewHolder(binding.root) {
-    var mediaPlayerController: MediaPlayerController? = null
-
-    @SuppressLint("ClickableViewAccessibility")
-    fun bind(
-        track: Track,
-    ) {
-
-        with(binding) {
-            trackName.text =
-                binding.root.resources.getString(
-                    R.string.track,
-                    track.number.toString(),
-                    track.file
-                )
-            progress.isEnabled = track.isPlaying
-            playTrack.setOnCheckedChangeListener { isPressed ->
-                mediaPlayerController = play(isPressed, track)
+                    })
+                    _data.add(trackModel)
+                }
             }
-
-            progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                var setProgress: Int? = null
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    setProgress = progress
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    mediaPlayerController?.updateProgress(setProgress ?: 0)
-                }
-
-            })
         }
     }
-}
 
-object TrackDiffCallback : DiffUtil.ItemCallback<Track>() {
-    override fun areContentsTheSame(oldItem: Track, newItem: Track) =
-        oldItem.id == newItem.id
-
-    override fun areItemsTheSame(oldItem: Track, newItem: Track) =
-        oldItem == newItem
-
-}
-
-fun SongCardBinding.play(isPressed: Boolean, track: Track): MediaPlayerController? {
-    val trackVieweHolderIntefaceImpl = TrackVieweHolderIntefaceImpl(this)
-    val mediaPlayerController =
-        MediaPlayerController.getInstance(trackVieweHolderIntefaceImpl)
-    if (isPressed) {
-        if (progress.currentPosition == 0) {
-            mediaPlayerController?.playTrack(track)
+    private fun play(
+        trackModel: TrackModel,
+        isPressed: Boolean = true,
+    ) {
+        if (isPressed) {
+            trackModel.card.apply {
+                if (progress.currentPosition == 0) {
+                    mediaPlayerController.play(listOf(trackModel))
+                } else {
+                    mediaPlayerController.pauseOff()
+                }
+            }
         } else {
-            mediaPlayerController?.pauseOff()
+            mediaPlayerController.pauseOn()
         }
-    } else {
-        mediaPlayerController?.pauseOn()
     }
-    return mediaPlayerController
 }
 
-interface TrackVieweHolderInteface {
-    fun setNewCard(): SongCardBinding
-    fun initNewCard(newCard: SongCardBinding?, currentPosition: Int, duration: Int)
-    fun resetCongCard(oldSongCard: SongCardBinding?)
-}

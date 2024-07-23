@@ -1,26 +1,20 @@
-//package ru.netology.singlealbum.controller
-//
-//import dagger.Module
-//import dagger.Provides
-//import dagger.hilt.InstallIn
-//import dagger.hilt.android.components.ActivityComponent
-//import dagger.hilt.components.SingletonComponent
-//import ru.netology.singlealbum.adapter.TrackVieweHolderInteface
-//import ru.netology.singlealbum.adapter.TrackVieweHolderIntefaceImpl
-//import ru.netology.singlealbum.databinding.SongCardBinding
-//
-//@Module
-//@InstallIn(SingletonComponent::class)
-//object MediaPlayerModule {
-//
-//    @Provides
-//    fun providerTrackVieweHolderInteface(binding: SongCardBinding): TrackVieweHolderIntefaceImpl {
-//        return TrackVieweHolderIntefaceImpl(binding)
-//    }
-//
-//    @Provides
-//    fun providerMediaPlayerController(trackVieweHolderInteface: TrackVieweHolderInteface):
-//            MediaPlayerController {
-//        return MediaPlayerController.getInstance(trackVieweHolderInteface)
-//    }
-//}
+package ru.netology.singlealbum.controller
+
+import android.widget.Adapter
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import ru.netology.singlealbum.adapter.TraksAdapter
+import javax.inject.Singleton
+
+@InstallIn(SingletonComponent::class)
+@Module
+class MediaPlayerModule {
+
+    @Provides
+    @Singleton
+    fun providerMediaPlayerController(): MediaPlayerController {
+        return MediaPlayerController()
+    }
+}
