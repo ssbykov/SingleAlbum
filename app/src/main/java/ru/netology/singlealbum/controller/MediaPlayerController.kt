@@ -5,9 +5,11 @@ import android.os.Handler
 import android.os.Looper
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.model.TrackModel
-import ru.netology.singlealbum.model.init
-import ru.netology.singlealbum.model.reset
-import ru.netology.singlealbum.model.update
+import ru.netology.singlealbum.utils.init
+import ru.netology.singlealbum.utils.onPause
+import ru.netology.singlealbum.utils.reset
+import ru.netology.singlealbum.utils.update
+
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
@@ -24,6 +26,7 @@ class MediaPlayerController() {
 
     fun pauseOn() {
         mediaPlayer?.pause()
+        songCard?.onPause()
     }
 
     fun pauseOff() {
@@ -69,7 +72,7 @@ class MediaPlayerController() {
         startTimeUpdates()
     }
 
-    private fun stopCurrentTrack() {
+    fun stopCurrentTrack() {
         mediaPlayer?.stop()
         mediaPlayer?.reset()
         mediaPlayer = null
