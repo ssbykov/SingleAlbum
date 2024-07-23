@@ -11,8 +11,6 @@ import ru.netology.singlealbum.model.update
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
-private const val NOT_INIT = "The controller is not initialized"
-private const val NOT_INST = "The interface is not installed"
 
 class MediaPlayerController() {
     private var mediaPlayer: MediaPlayer? = null
