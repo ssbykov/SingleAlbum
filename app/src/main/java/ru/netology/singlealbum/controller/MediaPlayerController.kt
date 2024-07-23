@@ -3,43 +3,26 @@ package ru.netology.singlealbum.controller
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
-import androidx.constraintlayout.widget.ConstraintLayout
-import ru.netology.singlealbum.adapter.TrackInteface
-import ru.netology.singlealbum.adapter.TraksAdapter
-import ru.netology.singlealbum.dto.Track
+import ru.netology.singlealbum.databinding.SongCardBinding
+import ru.netology.singlealbum.model.TrackModel
+import ru.netology.singlealbum.model.init
+import ru.netology.singlealbum.model.reset
+import ru.netology.singlealbum.model.update
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 private const val NOT_INIT = "The controller is not initialized"
 private const val NOT_INST = "The interface is not installed"
 
-class MediaPlayerController private constructor(private val adapter: TraksAdapter) {
+class MediaPlayerController() {
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var runnable: Runnable? = null
-    private var songCard: ConstraintLayout? = null
-    private var trackInteface: TrackInteface? = null
+    private var songCard: SongCardBinding? = null
+    private var trackIndex = -1
+    private var playPath = ""
+    private var playList: List<TrackModel> = emptyList()
 
-    companion object {
-        @Volatile
-        private var instance: MediaPlayerController? = null
-
-        fun initialize(adapter: TraksAdapter) {
-            instance ?: synchronized(this) {
-                instance ?: MediaPlayerController(adapter).also { instance = it }
-            }
-        }
-
-        fun getInstance(trackInteface: TrackInteface): MediaPlayerController? {
-            instance ?: throw Exception(NOT_INIT)
-            return instance?.setInterface(trackInteface)
-        }
-    }
-
-    fun setInterface(newInterface: TrackInteface?): MediaPlayerController {
-        trackInteface = newInterface
-        return this
-    }
 
     fun pauseOn() {
         mediaPlayer?.pause()
@@ -49,20 +32,41 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
         mediaPlayer?.start()
     }
 
-    fun playTrack(track: Track) {
-        if (trackInteface == null) throw Exception(NOT_INST)
+    fun play(playList: List<TrackModel>) {
+        this.playList = playList
+        trackIndex = -1
+        if (playList.isNotEmpty()) {
+            nextTrack(1)
+            playTrack()
+        }
+    }
+
+    fun playNext(step: Int = 1) {
+        nextTrack(step)
+        if (songCard != null) {
+            playTrack()
+        } else {
+            stopCurrentTrack()
+        }
+    }
+
+    private fun nextTrack(step: Int) {
         stopCurrentTrack()
-        songCard = trackInteface?.setNewCard()
+        trackIndex += step
+        if (trackIndex in (0..playList.size - 1)) {
+            playPath = BASE_PATH + playList[trackIndex].track.file
+            songCard = playList[trackIndex].card
+            songCard?.init()
+        } else songCard = null
+    }
+
+    private fun playTrack() {
         mediaPlayer = MediaPlayer()
-        mediaPlayer?.setDataSource(BASE_PATH + track.file)
+        mediaPlayer?.setDataSource(playPath)
         mediaPlayer?.prepare()
         mediaPlayer?.start()
         mediaPlayer?.setOnCompletionListener {
-            if (track.number in (0..adapter.data.size - 1)) {
-                adapter.play(adapter.data[track.number])
-            } else {
-                stopCurrentTrack()
-            }
+            playNext()
         }
         startTimeUpdates()
     }
@@ -71,7 +75,7 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
         mediaPlayer?.stop()
         mediaPlayer?.reset()
         mediaPlayer = null
-        trackInteface?.resetCongCard(songCard)
+        songCard?.reset()
         stopTimeUpdates()
     }
 
@@ -81,7 +85,7 @@ class MediaPlayerController private constructor(private val adapter: TraksAdapte
             override fun run() {
                 val currentPosition = mediaPlayer?.currentPosition ?: 0
                 val duration = mediaPlayer?.duration ?: 0
-                trackInteface?.initNewCard(songCard, currentPosition, duration)
+                songCard?.update(currentPosition, duration)
                 handler?.postDelayed(this, 1000)
             }
         }

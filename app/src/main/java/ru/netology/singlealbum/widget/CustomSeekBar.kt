@@ -13,8 +13,5 @@ class CustomSeekBar: AppCompatSeekBar {
         attrs,
         defStyleAttr
     )
-
     var currentPosition = 0
-    var isFinished = false
-
 }
