@@ -23,6 +23,9 @@ class MediaPlayerController() {
     private var playPath = ""
     private var playList: List<TrackModel> = emptyList()
 
+    private var onFirstListener: ((Boolean) -> Unit)? = null
+    private var onLastListener: ((Boolean) -> Unit)? = null
+    private var onPlayListFinishedListener: ((Boolean) -> Unit)? = null
 
     fun pauseOn() {
         mediaPlayer?.pause()
@@ -39,6 +42,10 @@ class MediaPlayerController() {
         if (playList.isNotEmpty()) {
             nextTrack(1)
             playTrack()
+        } else {
+            stopCurrentTrack()
+            onFirstListener?.invoke(true)
+            onLastListener?.invoke(true)
         }
     }
 
@@ -51,14 +58,26 @@ class MediaPlayerController() {
         }
     }
 
+    fun getDiffPosition(trackModel: TrackModel): Int {
+        val position = playList.indexOf(trackModel)
+        return if (position != -1 && playList.size > 1) {
+            position - trackIndex
+        } else 0
+    }
+
     private fun nextTrack(step: Int) {
         stopCurrentTrack()
         trackIndex += step
         if (trackIndex in (0..playList.size - 1)) {
+            onFirstListener?.invoke(trackIndex == 0)
+            onLastListener?.invoke(trackIndex == playList.size - 1)
             playPath = BASE_PATH + playList[trackIndex].track.file
             songCard = playList[trackIndex].card
             songCard?.init()
-        } else songCard = null
+        } else {
+            songCard = null
+            playList = emptyList()
+        }
     }
 
     private fun playTrack() {
@@ -67,6 +86,7 @@ class MediaPlayerController() {
         mediaPlayer?.prepare()
         mediaPlayer?.start()
         mediaPlayer?.setOnCompletionListener {
+            onPlayListFinishedListener?.invoke(playList.size == trackIndex + 1)
             playNext()
         }
         startTimeUpdates()
@@ -103,5 +123,17 @@ class MediaPlayerController() {
         handler?.removeCallbacks(requireNotNull(runnable))
         handler = null
         runnable = null
+    }
+
+    fun setOnFirstListener(listener: (Boolean) -> Unit) {
+        onFirstListener = listener
+    }
+
+    fun setOnLastListener(listener: (Boolean) -> Unit) {
+        onLastListener = listener
+    }
+
+    fun setOnPlayListFinishedListener(listener: (Boolean) -> Unit) {
+        onPlayListFinishedListener = listener
     }
 }
