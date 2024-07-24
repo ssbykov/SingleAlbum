@@ -23,6 +23,7 @@ import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.model.TrackModel
 import ru.netology.singlealbum.observer.MediaLifecycleObserver
+import ru.netology.singlealbum.utils.setColorState
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
 import javax.inject.Inject
 
@@ -77,12 +78,14 @@ class AppActivity : AppCompatActivity() {
                 )
                 play.setIcons(R.drawable.ic_play_arrow_24, R.drawable.ic_stop_24)
                 replay.setIcons(R.drawable.ic_loop_24, R.drawable.ic_arrow_forward_24)
+                previous.isEnabled = false
+                next.isEnabled = false
 
                 replay.setOnCheckedChangeListener { isPressed ->
-                    if (isPressed) {
-                        mediaPlayerController.setPlayMode(false)
-                    } else {
-                        mediaPlayerController.setPlayMode(true)
+                    mediaPlayerController.setPlayMode(!isPressed)
+                    if (!mediaPlayerController.isEmptyPlayList()) {
+                        setColorState(next, isPressed && mediaPlayerController.isLast())
+                        setColorState(previous, isPressed && mediaPlayerController.isFirst())
                     }
                 }
 
@@ -95,19 +98,11 @@ class AppActivity : AppCompatActivity() {
                 }
 
                 mediaPlayerController.setOnFirstListener { isFirst ->
-                    previous.background = AppCompatResources.getDrawable(
-                        binding.root.context,
-                        if (isFirst) R.drawable.roundcorner_gray else R.drawable.roundcorner_yellow
-                    )
-                    previous.isEnabled = !isFirst
+                    setColorState(previous, isFirst)
                 }
 
                 mediaPlayerController.setOnLastListener { isLast ->
-                    next.background = AppCompatResources.getDrawable(
-                        binding.root.context,
-                        if (isLast) R.drawable.roundcorner_gray else R.drawable.roundcorner_yellow
-                    )
-                    next.isEnabled = !isLast
+                    setColorState(next, isLast)
                 }
 
                 mediaPlayerController.setOnPlayListFinishedListener { isLast ->

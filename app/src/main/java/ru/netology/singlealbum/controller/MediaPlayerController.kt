@@ -71,12 +71,30 @@ class MediaPlayerController() {
         } else 0
     }
 
+    fun isFirst(): Boolean {
+        return trackIndex in (-1..0)
+    }
+
+    fun isLast(): Boolean {
+        return trackIndex == playList.size - 1
+    }
+
+    fun isEmptyPlayList(): Boolean {
+        return playList.size == 0
+    }
+
+
     private fun nextTrack(step: Int) {
         stopCurrentTrack()
         trackIndex += step
         if (trackIndex in (0..playList.size - 1)) {
-            onFirstListener?.invoke(trackIndex == 0)
-            onLastListener?.invoke(trackIndex == playList.size - 1)
+            if (playMode == PlayMode.ONCE) {
+                onFirstListener?.invoke(trackIndex == 0)
+                onLastListener?.invoke(trackIndex == playList.size - 1)
+            } else {
+                onFirstListener?.invoke(false)
+                onLastListener?.invoke(false)
+            }
             playPath = BASE_PATH + playList[trackIndex].track.file
             songCard = playList[trackIndex].card
             songCard?.init()
@@ -85,20 +103,22 @@ class MediaPlayerController() {
                 songCard = null
                 playList = emptyList()
             } else {
-                trackIndex = -1
-                nextTrack(1)
+                trackIndex = if (trackIndex < 0 && step == -1) playList.size - 1 else -1
+                nextTrack(if (trackIndex == playList.size - 1) 0 else 1)
             }
         }
     }
 
     private fun playTrack() {
         mediaPlayer = MediaPlayer()
-        mediaPlayer?.setDataSource(playPath)
-        mediaPlayer?.prepare()
-        mediaPlayer?.start()
-        mediaPlayer?.setOnCompletionListener {
-            onPlayListFinishedListener?.invoke(playList.size == trackIndex + 1)
-            playNext()
+        mediaPlayer?.apply {
+            setDataSource(playPath)
+            prepare()
+            start()
+            setOnCompletionListener {
+                onPlayListFinishedListener?.invoke(playList.size == trackIndex + 1)
+                playNext()
+            }
         }
         startTimeUpdates()
     }
@@ -149,6 +169,6 @@ class MediaPlayerController() {
     }
 }
 
-enum class PlayMode{
+enum class PlayMode {
     CONTINUOUS, ONCE
 }

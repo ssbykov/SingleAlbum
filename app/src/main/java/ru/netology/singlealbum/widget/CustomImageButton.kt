@@ -3,6 +3,7 @@ package ru.netology.singlealbum.widget
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.content.ContextCompat
 import ru.netology.singlealbum.R
@@ -44,5 +45,7 @@ class CustomImageButton @JvmOverloads constructor(
     fun setOnCheckedChangeListener(listener: (Boolean) -> Unit) {
         onCheckedChangeListener = listener
     }
+
+
 }
 
