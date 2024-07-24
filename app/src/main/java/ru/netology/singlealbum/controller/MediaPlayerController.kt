@@ -22,10 +22,16 @@ class MediaPlayerController() {
     private var trackIndex = -1
     private var playPath = ""
     private var playList: List<TrackModel> = emptyList()
+    private var playMode = PlayMode.CONTINUOUS
 
     private var onFirstListener: ((Boolean) -> Unit)? = null
     private var onLastListener: ((Boolean) -> Unit)? = null
     private var onPlayListFinishedListener: ((Boolean) -> Unit)? = null
+
+
+    fun setPlayMode(isChecked: Boolean) {
+        playMode = if (isChecked) PlayMode.CONTINUOUS else PlayMode.ONCE
+    }
 
     fun pauseOn() {
         mediaPlayer?.pause()
@@ -75,8 +81,13 @@ class MediaPlayerController() {
             songCard = playList[trackIndex].card
             songCard?.init()
         } else {
-            songCard = null
-            playList = emptyList()
+            if (playMode == PlayMode.ONCE) {
+                songCard = null
+                playList = emptyList()
+            } else {
+                trackIndex = -1
+                nextTrack(1)
+            }
         }
     }
 
@@ -136,4 +147,8 @@ class MediaPlayerController() {
     fun setOnPlayListFinishedListener(listener: (Boolean) -> Unit) {
         onPlayListFinishedListener = listener
     }
+}
+
+enum class PlayMode{
+    CONTINUOUS, ONCE
 }

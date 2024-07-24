@@ -76,8 +76,15 @@ class AppActivity : AppCompatActivity() {
                     album.genre
                 )
                 play.setIcons(R.drawable.ic_play_arrow_24, R.drawable.ic_stop_24)
+                replay.setIcons(R.drawable.ic_loop_24, R.drawable.ic_arrow_forward_24)
 
-
+                replay.setOnCheckedChangeListener { isPressed ->
+                    if (isPressed) {
+                        mediaPlayerController.setPlayMode(false)
+                    } else {
+                        mediaPlayerController.setPlayMode(true)
+                    }
+                }
 
                 play.setOnCheckedChangeListener { isPressed ->
                     if (isPressed) {
