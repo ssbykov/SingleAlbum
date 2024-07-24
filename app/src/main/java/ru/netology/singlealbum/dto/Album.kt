@@ -18,7 +18,6 @@ data class Track(
     val id: Long,
     val number: Int = 0,
     val file: String,
-    val duration: Int,
     val isPlaying: Boolean = false,
     val currentPosition: Int = 0
 )
