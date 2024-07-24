@@ -56,7 +56,7 @@
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
-            android:background="@drawable/roundcorner"
+            android:background="@drawable/roundcorner_gray"
             android:contentDescription="@string/previous"
             app:srcCompat="@drawable/ic_skip_previous_24" />
 
@@ -65,7 +65,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_margin="4dp"
-            android:background="@drawable/roundcorner"
+            android:background="@drawable/roundcorner_yellow"
             android:contentDescription="@string/play"
             app:srcCompat="@drawable/ic_play_arrow_24" />
 
@@ -74,7 +74,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_margin="4dp"
-            android:background="@drawable/roundcorner"
+            android:background="@drawable/roundcorner_gray"
             android:contentDescription="@string/next"
             app:srcCompat="@drawable/ic_skip_next_24" />
     </LinearLayout>
