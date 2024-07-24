@@ -58,7 +58,10 @@ class TraksAdapter @Inject constructor(
         if (isPressed) {
             trackModel.card.apply {
                 if (progress.currentPosition == 0) {
-                    mediaPlayerController.play(listOf(trackModel))
+                    val diffPosition = mediaPlayerController.getDiffPosition(trackModel)
+                    if (diffPosition != 0) {
+                        mediaPlayerController.playNext(diffPosition)
+                    } else mediaPlayerController.play(listOf(trackModel))
                 } else {
                     mediaPlayerController.pauseOff()
                 }
