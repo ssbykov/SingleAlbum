@@ -55,19 +55,21 @@ class TraksAdapter @Inject constructor(
         trackModel: TrackModel,
         isPressed: Boolean = true,
     ) {
-        if (isPressed) {
-            trackModel.card.apply {
-                if (progress.currentPosition == 0) {
-                    val diffPosition = mediaPlayerController.getDiffPosition(trackModel)
-                    if (diffPosition != 0) {
-                        mediaPlayerController.playNext(diffPosition)
-                    } else mediaPlayerController.play(listOf(trackModel))
+        mediaPlayerController.apply {
+            if (isPressed) {
+                if (trackModel.card.progress.currentPosition == 0) {
+                    val diffPosition = getDiffPosition(trackModel)
+                    if (getDiffPosition(trackModel) != 0) {
+                        playNext(diffPosition)
+                    } else {
+                        play(listOf(trackModel))
+                    }
                 } else {
-                    mediaPlayerController.pauseOff()
+                    pauseOff()
                 }
+            } else {
+                pauseOn()
             }
-        } else {
-            mediaPlayerController.pauseOn()
         }
     }
 }

@@ -90,11 +90,7 @@ class AppActivity : AppCompatActivity() {
                 }
 
                 play.setOnCheckedChangeListener { isPressed ->
-                    if (isPressed) {
-                        mediaPlayerController.play(adapter.data)
-                    } else {
-                        mediaPlayerController.play(emptyList())
-                    }
+                    mediaPlayerController.play(if (isPressed) adapter.data else emptyList())
                 }
 
                 mediaPlayerController.setOnFirstListener { isFirst ->
