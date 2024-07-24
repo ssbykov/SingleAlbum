@@ -36,7 +36,7 @@ class AlbumViewModel @Inject constructor(application: Application) : AndroidView
             }
 
             override fun onError(e: Exception) {
-                AlbumModel(error = true)
+                _data.postValue(AlbumModel(error = true))
             }
         })
     }

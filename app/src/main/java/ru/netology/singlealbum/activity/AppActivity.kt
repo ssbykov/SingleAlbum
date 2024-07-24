@@ -3,6 +3,8 @@ package ru.netology.singlealbum.activity
 import android.content.Context
 import android.os.Bundle
 import android.text.style.TtsSpan.CardinalBuilder
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -11,6 +13,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.children
 import androidx.core.view.get
 import androidx.lifecycle.Observer
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.singlealbum.R
 import ru.netology.singlealbum.adapter.TraksAdapter
@@ -45,6 +48,18 @@ class AppActivity : AppCompatActivity() {
 
 
         viewModel.data.observe(this, Observer { data ->
+            if (data.error) {
+                Snackbar.make(
+                    binding.root,
+                    "Ошибка загрузки",
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                    .setAction("Повторить") {
+                        viewModel.loadAlbum()
+                    }.show()
+            }
+            binding.play.isEnabled = !data.load
+            binding.progress.visibility = if (data.load) VISIBLE else GONE
             updateUI(data.album)
         })
     }
@@ -61,6 +76,8 @@ class AppActivity : AppCompatActivity() {
                     album.genre
                 )
                 play.setIcons(R.drawable.ic_play_arrow_24, R.drawable.ic_stop_24)
+
+
 
                 play.setOnCheckedChangeListener { isPressed ->
                     if (isPressed) {
