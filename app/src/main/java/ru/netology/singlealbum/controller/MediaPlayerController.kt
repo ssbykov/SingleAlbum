@@ -87,25 +87,25 @@ class MediaPlayerController() {
     private fun nextTrack(step: Int) {
         stopCurrentTrack()
         trackIndex += step
-        if (trackIndex in (0..playList.size - 1)) {
-            onFirstListener?.invoke(
-                if (!isContinuous) trackIndex == 0 else false
-            )
-            onLastListener?.invoke(
-                if (!isContinuous) trackIndex == playList.size - 1 else false
-            )
-            playPath = BASE_PATH + playList[trackIndex].track.file
-            songCard = playList[trackIndex].card
-            songCard?.init()
-        } else {
-            if (!isContinuous) {
-                songCard = null
-                playList = emptyList()
-            } else {
+        if (trackIndex !in (0..playList.size - 1)) {
+            if (isContinuous) {
                 trackIndex = if (trackIndex < 0 && step == -1) playList.size - 1 else -1
                 nextTrack(if (trackIndex == playList.size - 1) 0 else 1)
+            } else {
+                songCard = null
+                playList = emptyList()
             }
+            return
         }
+        onFirstListener?.invoke(
+            if (!isContinuous) trackIndex == 0 else false
+        )
+        onLastListener?.invoke(
+            if (!isContinuous) trackIndex == playList.size - 1 else false
+        )
+        playPath = BASE_PATH + playList[trackIndex].track.file
+        songCard = playList[trackIndex].card
+        songCard?.init()
     }
 
     private fun playTrack() {
