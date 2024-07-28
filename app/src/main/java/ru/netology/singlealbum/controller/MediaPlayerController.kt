@@ -93,7 +93,7 @@ class MediaPlayerController private constructor(
     }
 
     private fun stopTimeUpdates() {
-        track?.copy(isPlaying = false)?.let { viewModel.updateItem(it) }
+        track?.copy(isPlaying = false, currentPosition = 0)?.let { viewModel.updateItem(it) }
         handler?.removeCallbacks(requireNotNull(runnable))
         handler = null
         runnable = null

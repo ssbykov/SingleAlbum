@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         val tracks = album?.tracks
         if (tracks == null) return
         val isPaused = viewModel.isPaused.value ?: true
+        val isPlaying = tracks.any { it.isPlaying }
         adapter = TraksAdapter(tracks, isPaused, mediaPlayerController)
         binding.apply {
             listItem.adapter = adapter
@@ -54,8 +55,15 @@ class MainActivity : AppCompatActivity() {
                 album.genre ?: ""
             )
             play.setImageResource(
-                if (!isPaused) R.drawable.ic_pause_24 else R.drawable.ic_play_arrow_24
+                if (isPlaying) R.drawable.ic_stop_24 else R.drawable.ic_play_arrow_24
             )
+            play.setOnClickListener {
+                if (isPlaying) {
+                    mediaPlayerController.stopCurrentTrack()
+                } else {
+                    mediaPlayerController.playTrack(tracks.first())
+                }
+            }
         }
     }
 }
