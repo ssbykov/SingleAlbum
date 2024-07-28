@@ -22,6 +22,10 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
     val isPaused: LiveData<Boolean>
         get() = _isPaused
 
+    private val _isAll = MutableLiveData<Boolean>()
+    val isAll: LiveData<Boolean>
+        get() = _isAll
+
     init {
         loadAlbum()
     }
@@ -54,6 +58,10 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateIsPaused(value: Boolean) {
         _isPaused.value = value
+    }
+
+    fun updateIsAll(value: Boolean) {
+        _isAll.value = value
     }
 
 }

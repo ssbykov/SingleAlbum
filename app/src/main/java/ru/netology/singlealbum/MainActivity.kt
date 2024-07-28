@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                 if (isPlaying) {
                     mediaPlayerController.stopCurrentTrack()
                 } else {
-                    mediaPlayerController.playTrack(tracks.first())
+                    mediaPlayerController.playTrack(tracks.first(), true)
                 }
             }
         }

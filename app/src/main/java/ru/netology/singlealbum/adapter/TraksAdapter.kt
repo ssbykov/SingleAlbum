@@ -63,7 +63,7 @@ class TrackVieweHolder(
 
             playTrack.setOnClickListener {
                 if (!track.isPlaying) {
-                    mediaPlayerController.playTrack(track)
+                    mediaPlayerController.playTrack(track, false)
                 } else {
                     if (isPaused) {
                         mediaPlayerController.pauseOff()

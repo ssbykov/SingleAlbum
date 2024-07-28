@@ -42,7 +42,7 @@ class MediaPlayerController private constructor(
         mediaPlayer?.start()
     }
 
-    fun playTrack(newTrack: Track) {
+    fun playTrack(newTrack: Track, isAll: Boolean) {
         stopCurrentTrack()
         track = newTrack
         mediaPlayer = MediaPlayer()
@@ -51,6 +51,7 @@ class MediaPlayerController private constructor(
         mediaPlayer?.start()
         if (track != null) {
             viewModel.updateIsPaused(false)
+            viewModel.updateIsAll(isAll)
             startTimeUpdates()
         }
     }
