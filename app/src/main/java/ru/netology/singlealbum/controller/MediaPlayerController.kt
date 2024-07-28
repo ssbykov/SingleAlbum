@@ -46,14 +46,36 @@ class MediaPlayerController private constructor(
         stopCurrentTrack()
         track = newTrack
         mediaPlayer = MediaPlayer()
-        mediaPlayer?.setDataSource(BASE_PATH + newTrack.file)
-        mediaPlayer?.prepare()
-        mediaPlayer?.start()
+        mediaPlayer?.apply {
+            setDataSource(BASE_PATH + newTrack.file)
+            prepare()
+            start()
+            setOnCompletionListener {
+                nextTrack(isAll)
+            }
+        }
         if (track != null) {
             viewModel.updateIsPaused(false)
             viewModel.updateIsAll(isAll)
             startTimeUpdates()
         }
+    }
+
+    private fun nextTrack(isAll: Boolean, step: Int = 1) {
+        val index = track?.id ?: 0L + step
+        val tracks =  viewModel.data.value?.album?.tracks
+        if (tracks.isNullOrEmpty()) return
+        if (isAll) {
+            val nextTrack = when {
+                (index < 0) -> tracks.last()
+                (index > tracks.size) -> tracks[tracks.size - index.toInt()]
+                else -> tracks[index.toInt()]
+            }
+            playTrack(nextTrack, isAll)
+        } else {
+            playTrack(requireNotNull(track), false)
+        }
+
     }
 
     fun stopCurrentTrack() {
