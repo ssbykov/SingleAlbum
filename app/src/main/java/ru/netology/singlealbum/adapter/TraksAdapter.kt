@@ -15,16 +15,20 @@ import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.utils.fromMillis
 
-class TraksAdapter(private val items: MutableList<Track>) :
+class TraksAdapter(
+    private val items: MutableList<Track>,
+    private val isPaused: Boolean,
+    private val mediaPlayerController: MediaPlayerController
+) :
     ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
     override fun onBindViewHolder(holder: TrackVieweHolder, position: Int) {
         val track = getItem(position)
-        holder.bind(track)
+        holder.bind(track, isPaused)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackVieweHolder {
         val binding = SongCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return TrackVieweHolder(binding, this)
+        return TrackVieweHolder(binding, this, mediaPlayerController)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -35,46 +39,37 @@ class TraksAdapter(private val items: MutableList<Track>) :
         return items[position].id.toLong()
     }
 
-    fun updateItem(position: Int, track: Track) {
-        items[position] = track
-        notifyItemChanged(position)
-    }
-
 }
 
 class TrackVieweHolder(
     private val binding: SongCardBinding,
-    private val traksAdapter: TraksAdapter
+    private val traksAdapter: TraksAdapter,
+    private val mediaPlayerController: MediaPlayerController
 ) : RecyclerView.ViewHolder(binding.root) {
-    val mediaPlayerController = MediaPlayerController.getInstance(traksAdapter)
 
     @SuppressLint("ClickableViewAccessibility")
-    fun bind(
-        track: Track,
-    ) {
+    fun bind(track: Track, isPaused: Boolean) {
 
         with(binding) {
             trackName.text = track.file
             progress.isEnabled = track.isPlaying
-            if (playTrack.isPressed != track.isPlaying) {
-                playTrack.setImageResource(
-                    if (track.isPlaying) R.drawable.ic_pause_24 else R.drawable.ic_play_arrow_24
-                )
-            }
+            playTrack.setImageResource(
+                if (!isPaused && track.isPlaying) R.drawable.ic_pause_24 else R.drawable.ic_play_arrow_24
+            )
             if (track.duration != 0) {
                 progress.progress = (track.currentPosition * 100) / track.duration
             }
             time.setText(fromMillis(track.duration))
 
-            playTrack.setOnCheckedChangeListener { isPressed ->
-                if (isPressed) {
-                    if (progress.currentPosition == 0) {
-                        mediaPlayerController.playTrack(track)
-                    } else {
-                        mediaPlayerController.pauseOff()
-                    }
+            playTrack.setOnClickListener {
+                if (!track.isPlaying) {
+                    mediaPlayerController.playTrack(track)
                 } else {
-                    mediaPlayerController.pauseOn()
+                    if (isPaused) {
+                        mediaPlayerController.pauseOff()
+                    } else {
+                        mediaPlayerController.pauseOn()
+                    }
                 }
             }
 
@@ -105,11 +100,4 @@ object TrackDiffCallback : DiffUtil.ItemCallback<Track>() {
 
     override fun areItemsTheSame(oldItem: Track, newItem: Track) =
         oldItem == newItem
-
-}
-
-interface TrackVieweHolderInteface {
-    fun setNewCard(): SongCardBinding
-    fun initNewCard(newCard: SongCardBinding?, currentPosition: Int, duration: Int)
-    fun resetCongCard(oldSongCard: SongCardBinding?)
 }

@@ -13,14 +13,19 @@ import ru.netology.singlealbum.repository.AlbumRepository
 
 class AlbumViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = AlbumRepository()
+
     private val _data = MutableLiveData<AlbumModel>()
+    val data: LiveData<AlbumModel>
+        get() = _data
+
+    private val _isPaused = MutableLiveData<Boolean>(true)
+    val isPaused: LiveData<Boolean>
+        get() = _isPaused
 
     init {
         loadAlbum()
     }
 
-    val data: LiveData<AlbumModel>
-        get() = _data
 
     fun loadAlbum() {
         _data.postValue(AlbumModel(load = true))
@@ -33,6 +38,22 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
                 AlbumModel(error = true)
             }
         })
+    }
+
+    fun updateItem(newTrack: Track) {
+        val newAlbum = _data.value?.album?.let {
+            it.copy(
+                tracks = it.tracks.map { track ->
+                    if (track.id == newTrack.id) newTrack else track
+                }.toMutableList()
+            )
+        }
+        _data.value = _data.value?.copy(album = newAlbum)
+
+    }
+
+    fun updateIsPaused(value: Boolean) {
+        _isPaused.value = value
     }
 
 }

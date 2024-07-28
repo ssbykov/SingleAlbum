@@ -3,16 +3,18 @@ package ru.netology.singlealbum.controller
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
-import ru.netology.singlealbum.adapter.TrackVieweHolderInteface
 import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
+import ru.netology.singlealbum.viewmodel.AlbumViewModel
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 
 
-class MediaPlayerController private constructor(private val trackAdapter: TraksAdapter) {
+class MediaPlayerController private constructor(
+    private val viewModel: AlbumViewModel
+) {
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var runnable: Runnable? = null
@@ -23,18 +25,20 @@ class MediaPlayerController private constructor(private val trackAdapter: TraksA
         @Volatile
         private var instance: MediaPlayerController? = null
 
-        fun getInstance(trackAdapter: TraksAdapter): MediaPlayerController {
+        fun getInstance(viewModel: AlbumViewModel): MediaPlayerController {
             return instance ?: synchronized(this) {
-                instance ?: MediaPlayerController(trackAdapter).also { instance = it }
+                instance ?: MediaPlayerController(viewModel).also { instance = it }
             }
         }
     }
 
     fun pauseOn() {
+        viewModel.updateIsPaused(true)
         mediaPlayer?.pause()
     }
 
     fun pauseOff() {
+        viewModel.updateIsPaused(false)
         mediaPlayer?.start()
     }
 
@@ -46,7 +50,8 @@ class MediaPlayerController private constructor(private val trackAdapter: TraksA
         mediaPlayer?.prepare()
         mediaPlayer?.start()
         if (track != null) {
-            startTimeUpdates(requireNotNull(track))
+            viewModel.updateIsPaused(false)
+            startTimeUpdates()
         }
     }
 
@@ -55,7 +60,7 @@ class MediaPlayerController private constructor(private val trackAdapter: TraksA
         mediaPlayer?.reset()
         mediaPlayer = null
         if (track != null) {
-            stopTimeUpdates(requireNotNull(track))
+            stopTimeUpdates()
         }
     }
 
@@ -63,17 +68,18 @@ class MediaPlayerController private constructor(private val trackAdapter: TraksA
         return mediaPlayer
     }
 
-    private fun startTimeUpdates(newTrack: Track) {
+    private fun startTimeUpdates() {
         handler = Handler(Looper.getMainLooper())
         runnable = object : Runnable {
             override fun run() {
                 val currentPosition = mediaPlayer?.currentPosition ?: 0
                 val duration = mediaPlayer?.duration ?: 0
-                trackAdapter.updateItem(newTrack.id.toInt() - 1, newTrack.copy(
+                track = track?.copy(
                     currentPosition = currentPosition,
                     duration = duration,
-                    isPlaying = true
-                ))
+                    isPlaying = true,
+                )
+                viewModel.updateItem(requireNotNull(track))
                 handler?.postDelayed(this, 1000)
             }
         }
@@ -86,8 +92,8 @@ class MediaPlayerController private constructor(private val trackAdapter: TraksA
         }
     }
 
-    private fun stopTimeUpdates(track: Track) {
-        trackAdapter.updateItem(track.id.toInt() - 1, track)
+    private fun stopTimeUpdates() {
+        track?.copy(isPlaying = false)?.let { viewModel.updateItem(it) }
         handler?.removeCallbacks(requireNotNull(runnable))
         handler = null
         runnable = null
