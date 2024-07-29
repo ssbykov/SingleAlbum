@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.model.AlbumModel
@@ -18,18 +19,17 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
     val data: LiveData<AlbumModel>
         get() = _data
 
-    private val _isPaused = MutableLiveData<Boolean>(true)
-    val isPaused: LiveData<Boolean>
-        get() = _isPaused
-
     private val _isAll = MutableLiveData<Boolean>()
     val isAll: LiveData<Boolean>
         get() = _isAll
+
+    private var playMode: PlayMode = PlayMode.ALL
 
     init {
         loadAlbum()
     }
 
+    private val mediaPlayerController = MediaPlayerController(this)
 
     fun loadAlbum() {
         _data.postValue(AlbumModel(load = true))
@@ -56,12 +56,43 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun updateIsPaused(value: Boolean) {
-        _isPaused.value = value
+    fun play(track: Track, playMode: PlayMode) {
+        this.playMode = playMode
+        mediaPlayerController.playTrack(track, playMode)
     }
 
-    fun updateIsAll(value: Boolean) {
-        _isAll.value = value
+    fun playNext(track: Track) {
+        mediaPlayerController.playTrack(track, playMode)
     }
 
+    fun playNext(step: Int) {
+        mediaPlayerController.nextTrack(playMode, step)
+    }
+
+    fun stop() {
+        mediaPlayerController.stopCurrentTrack()
+    }
+
+    fun isPaused(): Boolean {
+        return mediaPlayerController.isPaused() ?: false
+    }
+
+    fun isPlaying(): Boolean {
+        return mediaPlayerController.isPlaying()
+    }
+
+    fun setPlayPause() {
+        val isPaused = mediaPlayerController.isPaused()
+        if (isPaused == null) return
+        if (isPaused) mediaPlayerController.pauseOff()
+        else mediaPlayerController.pauseOn()
+    }
+
+    fun updateProgress(progress: Int) {
+        mediaPlayerController.updateProgress(progress ?: 0)
+    }
+}
+
+enum class PlayMode {
+    SINGLE, ALL
 }

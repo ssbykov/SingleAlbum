@@ -1,25 +1,18 @@
 package ru.netology.singlealbum
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import ru.netology.singlealbum.adapter.TrackVieweHolder
 import ru.netology.singlealbum.adapter.TraksAdapter
-import ru.netology.singlealbum.controller.MediaPlayerController
 import ru.netology.singlealbum.databinding.ActivityMainBinding
-import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Album
-import ru.netology.singlealbum.model.AlbumModel
-import ru.netology.singlealbum.observer.MediaLifecycleObserver
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
+import ru.netology.singlealbum.viewmodel.PlayMode
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: AlbumViewModel by viewModels()
-    lateinit var mediaPlayerController: MediaPlayerController
-    private val observer = MediaLifecycleObserver()
     lateinit var adapter: TraksAdapter
     lateinit var binding: ActivityMainBinding
 
@@ -28,24 +21,21 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        lifecycle.addObserver(observer)
-
-        mediaPlayerController = MediaPlayerController.getInstance(viewModel)
-
         viewModel.data.observe(this, Observer { data ->
             updateUI(data.album)
         })
 
+        adapter = TraksAdapter(viewModel)
+        binding.listItem.adapter = adapter
+
+        binding.listItem.itemAnimator = null
     }
 
     private fun updateUI(album: Album?) {
         val tracks = album?.tracks
         if (tracks == null) return
-        val isPaused = viewModel.isPaused.value ?: true
         val isPlaying = tracks.any { it.isPlaying }
-        adapter = TraksAdapter(tracks, isPaused, mediaPlayerController)
         binding.apply {
-            listItem.adapter = adapter
             adapter.submitList(album.tracks)
             albumName.text = album.title
             artist.text = album.artist
@@ -59,10 +49,17 @@ class MainActivity : AppCompatActivity() {
             )
             play.setOnClickListener {
                 if (isPlaying) {
-                    mediaPlayerController.stopCurrentTrack()
+                    viewModel.stop()
                 } else {
-                    mediaPlayerController.playTrack(tracks.first(), true)
+                    viewModel.play(tracks.first(), PlayMode.ALL)
                 }
+            }
+            next.setOnClickListener {
+                viewModel.playNext(1)
+            }
+
+            previous.setOnClickListener {
+                viewModel.playNext(-1)
             }
         }
     }

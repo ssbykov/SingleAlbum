@@ -3,16 +3,16 @@ package ru.netology.singlealbum.controller
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
-import ru.netology.singlealbum.adapter.TraksAdapter
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
+import ru.netology.singlealbum.viewmodel.PlayMode
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 
 
-class MediaPlayerController private constructor(
+class MediaPlayerController constructor(
     private val viewModel: AlbumViewModel
 ) {
     private var mediaPlayer: MediaPlayer? = null
@@ -21,28 +21,27 @@ class MediaPlayerController private constructor(
     private var songCardBinding: SongCardBinding? = null
     private var track: Track? = null
 
-    companion object {
-        @Volatile
-        private var instance: MediaPlayerController? = null
+    fun isPaused(): Boolean? {
+        return if (mediaPlayer != null) {
+            !requireNotNull(mediaPlayer).isPlaying() &&
+                    requireNotNull(mediaPlayer).getCurrentPosition() > 0
+        } else null
+    }
 
-        fun getInstance(viewModel: AlbumViewModel): MediaPlayerController {
-            return instance ?: synchronized(this) {
-                instance ?: MediaPlayerController(viewModel).also { instance = it }
-            }
-        }
+    fun isPlaying(): Boolean {
+        return mediaPlayer?.isPlaying ?: false
     }
 
     fun pauseOn() {
-        viewModel.updateIsPaused(true)
         mediaPlayer?.pause()
     }
 
     fun pauseOff() {
-        viewModel.updateIsPaused(false)
         mediaPlayer?.start()
     }
 
-    fun playTrack(newTrack: Track, isAll: Boolean) {
+
+    fun playTrack(newTrack: Track, playMode: PlayMode) {
         stopCurrentTrack()
         track = newTrack
         mediaPlayer = MediaPlayer()
@@ -51,29 +50,27 @@ class MediaPlayerController private constructor(
             prepare()
             start()
             setOnCompletionListener {
-                nextTrack(isAll)
+                nextTrack(playMode)
             }
         }
         if (track != null) {
-            viewModel.updateIsPaused(false)
-            viewModel.updateIsAll(isAll)
             startTimeUpdates()
         }
     }
 
-    private fun nextTrack(isAll: Boolean, step: Int = 1) {
-        val index = track?.id ?: 0L + step
-        val tracks =  viewModel.data.value?.album?.tracks
+    fun nextTrack(playMode: PlayMode, step: Int = 1) {
+        val index = (track?.id ?: 0L) - 1 + step
+        val tracks = viewModel.data.value?.album?.tracks
         if (tracks.isNullOrEmpty()) return
-        if (isAll) {
+        if (playMode == PlayMode.ALL) {
             val nextTrack = when {
                 (index < 0) -> tracks.last()
-                (index > tracks.size) -> tracks[tracks.size - index.toInt()]
+                (index >= tracks.size) -> tracks[tracks.size - index.toInt()]
                 else -> tracks[index.toInt()]
             }
-            playTrack(nextTrack, isAll)
+            playTrack(nextTrack, playMode)
         } else {
-            playTrack(requireNotNull(track), false)
+            playTrack(requireNotNull(track), playMode)
         }
 
     }
