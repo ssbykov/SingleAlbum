@@ -1,47 +1,62 @@
 package ru.netology.singlealbum.controller
 
+import android.app.Application
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
-import ru.netology.singlealbum.viewmodel.PlayMode
+import androidx.lifecycle.ViewModelStoreOwner
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
 
 
-class MediaPlayerController constructor(
-    private val viewModel: AlbumViewModel
+class MediaPlayerController private constructor(
+    val viewModel: AlbumViewModel
 ) {
+
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var runnable: Runnable? = null
     private var songCardBinding: SongCardBinding? = null
     private var track: Track? = null
+    private var playMode: PlayMode = PlayMode.ALL
 
-    fun isPaused(): Boolean? {
+    companion object {
+        @Volatile
+        private var instance: MediaPlayerController? = null
+
+        fun getInstance(viewModel: AlbumViewModel): MediaPlayerController {
+            return instance ?: synchronized(this) {
+                instance ?: MediaPlayerController(viewModel).also { instance = it }
+            }
+        }
+    }
+
+    fun isPaused(): Boolean {
         return if (mediaPlayer != null) {
             !requireNotNull(mediaPlayer).isPlaying() &&
                     requireNotNull(mediaPlayer).getCurrentPosition() > 0
-        } else null
+        } else false
     }
 
     fun isPlaying(): Boolean {
         return mediaPlayer?.isPlaying ?: false
     }
 
-    fun pauseOn() {
-        mediaPlayer?.pause()
+    fun setPlayPause() {
+        if (isPaused()) mediaPlayer?.start() else mediaPlayer?.pause()
     }
 
-    fun pauseOff() {
-        mediaPlayer?.start()
+    fun setPlayMode(playMode: PlayMode) {
+        this.playMode = playMode
     }
 
-
-    fun playTrack(newTrack: Track, playMode: PlayMode) {
+    fun playTrack(newTrack: Track) {
         stopCurrentTrack()
         track = newTrack
         mediaPlayer = MediaPlayer()
@@ -50,7 +65,7 @@ class MediaPlayerController constructor(
             prepare()
             start()
             setOnCompletionListener {
-                nextTrack(playMode)
+                nextTrack()
             }
         }
         if (track != null) {
@@ -58,7 +73,7 @@ class MediaPlayerController constructor(
         }
     }
 
-    fun nextTrack(playMode: PlayMode, step: Int = 1) {
+    fun nextTrack(step: Int = 1) {
         val index = (track?.id ?: 0L) - 1 + step
         val tracks = viewModel.data.value?.album?.tracks
         if (tracks.isNullOrEmpty()) return
@@ -68,9 +83,9 @@ class MediaPlayerController constructor(
                 (index >= tracks.size) -> tracks[tracks.size - index.toInt()]
                 else -> tracks[index.toInt()]
             }
-            playTrack(nextTrack, playMode)
+            playTrack(nextTrack)
         } else {
-            playTrack(requireNotNull(track), playMode)
+            playTrack(requireNotNull(track))
         }
 
     }
@@ -118,4 +133,8 @@ class MediaPlayerController constructor(
         handler = null
         runnable = null
     }
+}
+
+enum class PlayMode {
+    SINGLE, ALL
 }

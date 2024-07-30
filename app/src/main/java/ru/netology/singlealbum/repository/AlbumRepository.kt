@@ -2,6 +2,8 @@ package ru.netology.singlealbum.repository
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.ViewModelScoped
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -11,12 +13,14 @@ import okhttp3.Response
 import ru.netology.singlealbum.dto.Album
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AlbumRepository {
+@Singleton
+class AlbumRepository @Inject constructor() {
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .build()
+    @Inject
+    lateinit var client: OkHttpClient
 
     private val gson = Gson()
 

@@ -8,16 +8,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.singlealbum.R
+import ru.netology.singlealbum.controller.MediaPlayerController
+import ru.netology.singlealbum.controller.PlayMode
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.utils.fromMillis
-import ru.netology.singlealbum.viewmodel.AlbumViewModel
-import ru.netology.singlealbum.viewmodel.PlayMode
 
 class TraksAdapter(
-    private val viewModel: AlbumViewModel
-) :
-    ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
+    private val mediaPlayerController: MediaPlayerController
+) : ListAdapter<Track, TrackVieweHolder>(TrackDiffCallback) {
+
     override fun onBindViewHolder(holder: TrackVieweHolder, position: Int) {
         val track = getItem(position)
         holder.bind(track)
@@ -25,7 +25,7 @@ class TraksAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackVieweHolder {
         val binding = SongCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return TrackVieweHolder(binding, this, viewModel)
+        return TrackVieweHolder(binding, mediaPlayerController, getTraks())
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -33,16 +33,18 @@ class TraksAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        val album = requireNotNull(viewModel.data.value?.album)
-        return album.tracks[position].id.toLong()
+        return getTraks()[position].id.toLong()
     }
 
+    private fun getTraks(): List<Track> {
+        return mediaPlayerController.viewModel.data.value?.album?.tracks?.toList() ?: emptyList()
+    }
 }
 
 class TrackVieweHolder(
     private val binding: SongCardBinding,
-    private val traksAdapter: TraksAdapter,
-    private val viewModel: AlbumViewModel
+    private val mediaPlayerController: MediaPlayerController,
+    private val tracks: List<Track>
 ) : RecyclerView.ViewHolder(binding.root) {
 
     @SuppressLint("ClickableViewAccessibility")
@@ -52,7 +54,7 @@ class TrackVieweHolder(
             trackName.text = track.file
             progress.isEnabled = track.isPlaying
             playTrack.setImageResource(
-                if (!viewModel.isPaused() && track.isPlaying) R.drawable.ic_pause_24
+                if (!mediaPlayerController.isPaused() && track.isPlaying) R.drawable.ic_pause_24
                 else R.drawable.ic_play_arrow_24
             )
             if (track.duration != 0) {
@@ -61,14 +63,13 @@ class TrackVieweHolder(
             time.setText(fromMillis(track.duration))
 
             playTrack.setOnClickListener {
-                if (!viewModel.isPlaying()) {
-                    viewModel.play(track, PlayMode.SINGLE)
-                } else if (viewModel.isPlaying() && track.isPlaying) {
-                    viewModel.setPlayPause()
-                }
-                else {
-
-                    viewModel.playNext(track)
+                if (!mediaPlayerController.isPlaying()) {
+                    mediaPlayerController.setPlayMode(PlayMode.SINGLE)
+                    mediaPlayerController.playTrack(track)
+                } else if (mediaPlayerController.isPlaying() && track.isPlaying) {
+                    mediaPlayerController.setPlayPause()
+                } else {
+                    mediaPlayerController.playTrack(track)
                 }
             }
 
@@ -85,7 +86,7 @@ class TrackVieweHolder(
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    viewModel.updateProgress(setProgress ?: 0)
+                    mediaPlayerController.updateProgress(setProgress ?: 0)
                 }
 
             })
