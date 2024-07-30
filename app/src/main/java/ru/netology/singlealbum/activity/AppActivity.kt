@@ -68,11 +68,14 @@ class AppActivity : AppCompatActivity() {
                 album.published,
                 album.genre
             )
-            play.setImageResource(
-                if (isPlaying) R.drawable.ic_stop_24 else R.drawable.ic_play_arrow_24
-            )
+            if (isPlaying) {
+                play.setImageResource(
+                    R.drawable.ic_stop_24
+                )
+            }
             play.setOnClickListener {
                 if (isPlaying) {
+                    play.setImageResource(R.drawable.ic_play_arrow_24)
                     mediaPlayerController.stopCurrentTrack()
                 } else {
                     mediaPlayerController.setPlayMode(PlayMode.ALL)
