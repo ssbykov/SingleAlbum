@@ -2,6 +2,8 @@ package ru.netology.singlealbum.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.recyclerview.widget.DiffUtil
@@ -53,6 +55,8 @@ class TrackVieweHolder(
         with(binding) {
             trackName.text = track.file
             progress.isEnabled = track.isPlaying
+            currentTime.visibility = if (track.isPlaying) VISIBLE else GONE
+            currentTime.setText(fromMillis(track.currentPosition))
             playTrack.setImageResource(
                 if (!mediaPlayerController.isPaused() && track.isPlaying) R.drawable.ic_pause_24
                 else R.drawable.ic_play_arrow_24

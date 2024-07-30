@@ -28,6 +28,16 @@
         app:layout_constraintStart_toEndOf="@id/playTrack"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5" />
+    <TextView
+        android:id="@+id/currentTime"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/progress"
+        android:textSize="12sp"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_height="wrap_content"/>
 
     <ru.netology.singlealbum.widget.CustomSeekBar
         android:id="@+id/progress"
