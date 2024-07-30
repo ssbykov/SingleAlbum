@@ -43,7 +43,7 @@ class AppActivity : AppCompatActivity() {
     private fun updateUI(album: Album?) {
         val tracks = album?.tracks
         if (tracks == null) return
-        val isPlaying = tracks.any { it.isPlaying }
+        val isPlaying = mediaPlayerController.isPlaying()
         binding.apply {
             adapter.submitList(album.tracks)
             albumName.text = album.title
