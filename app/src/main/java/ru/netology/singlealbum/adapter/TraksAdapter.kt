@@ -39,7 +39,7 @@ class TraksAdapter(
     }
 
     private fun getTraks(): List<Track> {
-        return mediaPlayerController.viewModel.data.value?.album?.tracks?.toList() ?: emptyList()
+        return mediaPlayerController.viewModel.albumData.value?.album?.tracks?.toList() ?: emptyList()
     }
 }
 
@@ -67,12 +67,10 @@ class TrackVieweHolder(
             time.setText(fromMillis(track.duration))
 
             playTrack.setOnClickListener {
-                if (!mediaPlayerController.isPlaying()) {
-                    mediaPlayerController.setPlayMode(PlayMode.SINGLE)
-                    mediaPlayerController.playTrack(track)
-                } else if (mediaPlayerController.isPlaying() && track.isPlaying) {
+                if (track.isPlaying) {
                     mediaPlayerController.setPlayPause()
                 } else {
+                    mediaPlayerController.setPlayMode(PlayMode.SINGLE)
                     mediaPlayerController.playTrack(track)
                 }
             }

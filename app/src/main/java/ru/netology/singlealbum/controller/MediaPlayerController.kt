@@ -1,15 +1,11 @@
 package ru.netology.singlealbum.controller
 
-import android.app.Application
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
 import ru.netology.singlealbum.databinding.SongCardBinding
 import ru.netology.singlealbum.dto.Track
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 
 private const val BASE_PATH =
     "https://raw.githubusercontent.com/netology-code/andad-homeworks/master/09_multimedia/data/"
@@ -24,7 +20,7 @@ class MediaPlayerController private constructor(
     private var runnable: Runnable? = null
     private var songCardBinding: SongCardBinding? = null
     private var track: Track? = null
-    private var playMode: PlayMode = PlayMode.ALL
+    private var playMode: PlayMode? = null
 
     companion object {
         @Volatile
@@ -52,8 +48,10 @@ class MediaPlayerController private constructor(
         if (isPaused()) mediaPlayer?.start() else mediaPlayer?.pause()
     }
 
-    fun setPlayMode(playMode: PlayMode) {
-        this.playMode = playMode
+    fun setPlayMode(playMode: PlayMode?) {
+        if (this.playMode != PlayMode.ALL || playMode == null) {
+            this.playMode = playMode
+        }
     }
 
     fun playTrack(newTrack: Track) {
@@ -71,11 +69,12 @@ class MediaPlayerController private constructor(
         if (track != null) {
             startTimeUpdates()
         }
+        viewModel.setIsPlaying(true)
     }
 
     fun nextTrack(step: Int = 1) {
         val index = (track?.id ?: 0L) - 1 + step
-        val tracks = viewModel.data.value?.album?.tracks
+        val tracks = viewModel.albumData.value?.album?.tracks
         if (tracks.isNullOrEmpty()) return
         if (playMode == PlayMode.ALL) {
             val nextTrack = when {

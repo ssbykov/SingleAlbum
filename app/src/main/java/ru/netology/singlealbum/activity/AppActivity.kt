@@ -15,7 +15,6 @@ import ru.netology.singlealbum.controller.PlayMode
 import ru.netology.singlealbum.databinding.ActivityMainBinding
 import ru.netology.singlealbum.dto.Album
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
@@ -33,7 +32,7 @@ class AppActivity : AppCompatActivity() {
         setContentView(binding.root)
         mediaPlayerController = MediaPlayerController.getInstance(viewModel)
 
-        mediaPlayerController.viewModel.data.observe(this, Observer { data ->
+        viewModel.albumData.observe(this, Observer { data ->
             if (data.error) {
                 Snackbar.make(
                     binding.root,
@@ -49,18 +48,25 @@ class AppActivity : AppCompatActivity() {
             updateUI(data.album)
         })
 
+        viewModel.tracksData.observe(this, Observer {
+            adapter.submitList(it)
+        })
+
+        viewModel.isPlaying.observe(this, Observer {
+            binding.play.setImageResource(
+                if (it) R.drawable.ic_stop_24 else R.drawable.ic_play_arrow_24
+            )
+        })
         adapter = TraksAdapter(mediaPlayerController)
         binding.listItem.adapter = adapter
+
 
         binding.listItem.itemAnimator = null
     }
 
     private fun updateUI(album: Album?) {
-        val tracks = album?.tracks
-        if (tracks == null) return
-        val isPlaying = mediaPlayerController.isPlaying()
+        if (album == null) return
         binding.apply {
-            adapter.submitList(album.tracks)
             albumName.text = album.title
             artist.text = album.artist
             information.text = getString(
@@ -68,18 +74,22 @@ class AppActivity : AppCompatActivity() {
                 album.published,
                 album.genre
             )
-            if (isPlaying) {
-                play.setImageResource(
-                    R.drawable.ic_stop_24
-                )
-            }
+//            if (mediaPlayerController.isPlaying()) {
+//                play.setImageResource(
+//                    R.drawable.ic_stop_24
+//                )
+//            }
             play.setOnClickListener {
-                if (isPlaying) {
-                    play.setImageResource(R.drawable.ic_play_arrow_24)
+                if (mediaPlayerController.isPlaying()) {
+                    viewModel.setIsPlaying(false)
+                    mediaPlayerController.setPlayMode(null)
                     mediaPlayerController.stopCurrentTrack()
                 } else {
-                    mediaPlayerController.setPlayMode(PlayMode.ALL)
-                    mediaPlayerController.playTrack(tracks.first())
+                    val tracks = viewModel.tracksData.value
+                    if (!tracks.isNullOrEmpty()) {
+                        mediaPlayerController.setPlayMode(PlayMode.ALL)
+                        mediaPlayerController.playTrack(tracks.first())
+                    }
                 }
             }
             next.setOnClickListener {
