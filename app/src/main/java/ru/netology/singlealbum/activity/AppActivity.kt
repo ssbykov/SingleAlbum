@@ -74,11 +74,6 @@ class AppActivity : AppCompatActivity() {
                 album.published,
                 album.genre
             )
-//            if (mediaPlayerController.isPlaying()) {
-//                play.setImageResource(
-//                    R.drawable.ic_stop_24
-//                )
-//            }
             play.setOnClickListener {
                 if (mediaPlayerController.isPlaying()) {
                     viewModel.setIsPlaying(false)
